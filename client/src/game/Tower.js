@@ -36,7 +36,9 @@ export class Tower {
   }
 
   get sellRefund() {
-    return Math.floor(this.invested * SELL_FACTOR);
+    // + 1e-9 guards against float error (e.g. 90 * 0.7 === 62.99999999999999)
+    // pushing an exact-integer result below its true value.
+    return Math.floor(this.invested * SELL_FACTOR + 1e-9);
   }
 
   upgrade() {
