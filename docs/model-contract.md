@@ -21,7 +21,7 @@ All 14 models exist in `blender/troll-towers.blend` (one collection per model) a
 | `troll_bat.glb` | Bat troll (flying) | ~0.8 m, hovering ~1.2 m above ground |
 | `troll_boss.glb` | Boss troll | ~3 m tall |
 | `decor_tree.glb`, `decor_rock.glb`, `decor_cactus.glb`, `decor_reed.glb` | Decoration | fits inside 2×2 m |
-| `base_castle.glb` | The castle the trolls attack; fills 3×3 tiles | ~6 m wide, ~6 m tall, gate on +Z |
+| `base_castle.glb` | The castle the trolls attack; fills 3×3 tiles | ≤ 6 m (3×3 tiles); shipped model ~5.6 m wide, ~6 m tall, gate on +Z |
 | `spawn_gate.glb` | Where trolls come out | ~2 m wide, opening faces +Z |
 
 ## Scale and origin

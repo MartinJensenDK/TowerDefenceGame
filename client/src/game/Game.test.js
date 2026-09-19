@@ -246,6 +246,17 @@ describe('interval waves', () => {
     expect(plain.wave).toBe(1);
   });
 
+  it('endless keeps the interval timer', () => {
+    const g = makeGame({ modifiers: { frostBonus: 1, waveInterval: 5 } });
+    g.buildTower('cannon', 2, 0);
+    g.buildTower('cannon', 3, 2);
+    g.startNextWave();
+    for (let i = 0; i < 200 && g.state !== 'won'; i++) run(g, 6);
+    expect(g.state).toBe('won');
+    expect(g.startEndless()).toBe(true);
+    expect(g.waveTimer).toBe(5);
+  });
+
   it('stops the timer once every wave has been started', () => {
     const g = makeGame({ modifiers: { frostBonus: 1, waveInterval: 0.5 } });
     g.startNextWave();

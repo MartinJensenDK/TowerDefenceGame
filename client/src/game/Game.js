@@ -71,6 +71,8 @@ export class Game extends Emitter {
     this.endless = true;
     this.state = 'idle';
     this.countdown = AUTO_WAVE_DELAY;
+    // startNextWave() cleared the timer when the last scripted wave began; endless waves keep coming
+    if (this.waveInterval !== null) this.waveTimer = this.waveInterval;
     this.emit('endless:started', { wave: this.wave });
     return true;
   }

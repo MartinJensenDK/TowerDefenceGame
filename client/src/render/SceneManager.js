@@ -35,6 +35,9 @@ export class SceneManager {
     this.scene.background = new THREE.Color(sky);
     this.scene.fog = new THREE.Fog(new THREE.Color(fog), Math.max(45, 2.5 * extent), Math.max(110, 6 * extent));
     this.camera.far = Math.max(300, 8 * extent);
+    // A 0.1 near plane against an 800 far plane starves the depth buffer and makes the 2 cm
+    // overlays (frozen tiles, path chevrons) z-fight; the orbit rig never gets closer than 10.
+    this.camera.near = extent > 40 ? 1 : 0.1;
     this.camera.updateProjectionMatrix();
   }
 

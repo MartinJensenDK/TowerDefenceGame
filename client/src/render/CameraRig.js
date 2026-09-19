@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-/** Orbit camera over the map: rotate 360°, zoom 10–45 towards the cursor, tilt 25°–70° above the ground. */
+/** Orbit camera over the map: rotate 360°, zoom 10 up to 2.6× the map extent towards the cursor, tilt 25°–70° above the ground. */
 export class CameraRig {
   constructor(camera, domElement, { centerX, centerZ, extent }) {
     this.controls = new OrbitControls(camera, domElement);
@@ -16,7 +16,7 @@ export class CameraRig {
     c.enableDamping = true;
     c.dampingFactor = 0.08;
     c.rotateSpeed = 0.6;
-    c.zoomSpeed = 2.5; // ~12 % per wheel notch: the full 10–45 range takes about a dozen notches
+    c.zoomSpeed = 2.5; // ~12 % per wheel notch: about a dozen for the 10–45 range of a small map, ~28 for the 10–260 of a 100x100 one
     // Zoom towards the point under the cursor; the orbit target slides along the ground plane
     // and stays within the map so the camera cannot wander off into the void.
     c.zoomToCursor = true;

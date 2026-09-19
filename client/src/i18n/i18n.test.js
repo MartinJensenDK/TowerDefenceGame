@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { loadLanguage, t, currentLanguage } from './i18n.js';
 import en from './en.json';
+import { MAP_ORDER } from '../data/index.js';
 
 describe('i18n', () => {
   beforeAll(async () => {
@@ -23,7 +24,7 @@ describe('i18n', () => {
   it('has a name key for every tower and enemy', () => {
     for (const id of ['crossbow', 'spike', 'cannon', 'frozen']) expect(en[`tower.${id}.name`]).toBeTruthy();
     for (const id of ['scout', 'brute', 'bat', 'boss']) expect(en[`enemy.${id}.name`]).toBeTruthy();
-    for (const id of ['green', 'snow', 'desert', 'water']) expect(en[`map.${id}.name`]).toBeTruthy();
+    for (const id of MAP_ORDER) expect(en[`map.${id}.name`]).toBeTruthy();
   });
 
   it('rejects unknown languages', async () => {
