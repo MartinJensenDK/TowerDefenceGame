@@ -61,6 +61,24 @@ describe('Game building', () => {
     expect(g.grid.frozenTiles()).toHaveLength(0);
     expect(frozen).toHaveBeenCalledTimes(3);
   });
+
+  it('only emits tile:frozenChanged when the frozen tile set actually changes', () => {
+    const g = makeGame();
+    const frozen = vi.fn();
+    g.on('tile:frozenChanged', frozen);
+    const { tower: first } = g.buildTower('frozen', 2, 0);
+    expect(frozen).toHaveBeenCalledTimes(1);
+    expect(frozen.mock.calls[0][0].tiles).toHaveLength(3);
+    expect(frozen.mock.calls[0][0].changed).toHaveLength(3);
+    // A second frozen tower whose coverage of the road fully overlaps the first's
+    // (same road tiles, same slow) changes nothing, so no event should fire.
+    g.buildTower('frozen', 2, 2);
+    expect(frozen).toHaveBeenCalledTimes(1);
+    // Selling the first tower leaves the second tower still covering the same
+    // tiles with the same multiplier, so still no change.
+    g.sellTower(first.id);
+    expect(frozen).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('Game waves', () => {

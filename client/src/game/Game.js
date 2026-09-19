@@ -227,11 +227,13 @@ export class Game extends Emitter {
     this.emit(state === 'won' ? 'game:won' : 'game:lost', { score: this.economy.score, wave: this.wave });
   }
 
-  /** Rebuilds frozen-tile state from every freeze tower and emits what changed. */
+  /** Rebuilds frozen-tile state from every freeze tower and emits what changed, if anything. */
   #refreeze() {
     const sources = this.towers.map((t) => t.freezeSource()).filter(Boolean);
     const changed = this.grid.recomputeFrozen(sources);
-    this.emit('tile:frozenChanged', { tiles: changed, changed: changed.length });
+    if (changed.length > 0) {
+      this.emit('tile:frozenChanged', { tiles: this.grid.frozenTiles(), changed });
+    }
   }
 
   #emitEconomy() {
