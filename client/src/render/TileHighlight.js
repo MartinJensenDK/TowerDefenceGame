@@ -40,9 +40,10 @@ export class TileHighlight {
     scene.add(this.mesh);
   }
 
-  /** Show the frame on the tile centred at world (x, z). */
-  show(x, z) {
+  /** Show the frame on the tile centred at world (x, z); `size` in tiles (3 for the castle footprint). */
+  show(x, z, size = 1) {
     this.mesh.position.set(x, TILE_TOP + 0.02, z);
+    this.mesh.scale.set(size, 1, size);
     this.mesh.visible = true;
   }
 

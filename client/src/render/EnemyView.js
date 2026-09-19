@@ -1,30 +1,7 @@
 import * as THREE from 'three';
+import { HP_STEPS, hpTexture } from './hpBar.js';
 
 const DEATH_DURATION = 0.45;
-const HP_STEPS = 32;
-const hpTextures = new Map();
-
-/** Shared hp-bar textures: one per (fill level, colour), drawn once and reused by every troll. */
-function hpTexture(level) {
-  if (hpTextures.has(level)) return hpTextures.get(level);
-  const w = 66;
-  const h = 10;
-  const canvas = document.createElement('canvas');
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#1d1a16';
-  ctx.fillRect(0, 0, w, h);
-  const ratio = level / HP_STEPS;
-  ctx.fillStyle = ratio > 0.5 ? '#44dd44' : ratio > 0.25 ? '#ffb347' : '#ff5544';
-  ctx.fillRect(2, 2, Math.round((w - 4) * ratio), h - 4);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.minFilter = THREE.LinearFilter;
-  hpTextures.set(level, tex);
-  return tex;
-}
-
 /** Visual for one enemy: model instance, walk bobbing, hp bar, hit flash and death squash. */
 export class EnemyView {
   constructor(enemy, models, scene) {
@@ -108,10 +85,18 @@ export class EnemyView {
       return t >= 1;
     }
     this.syncTransform();
-    this.walkT += dt * 9 * this.enemy.speedMultiplier;
+    const hacking = !!this.enemy.blockedBy;
+    this.walkT += dt * (hacking ? 14 : 9 * this.enemy.speedMultiplier);
     const s = Math.sin(this.walkT);
-    if (this.actions.walk) this.actions.walk.timeScale = this.enemy.speedMultiplier;
-    else if (this.legs.length || this.arms.length) {
+    if (this.actions.walk) this.actions.walk.timeScale = hacking ? 0 : this.enemy.speedMultiplier;
+    else if (hacking && (this.legs.length || this.arms.length)) {
+      // stopped at a barricade: feet planted, both arms chop down at it, body rocks with each blow
+      const chop = Math.max(0, s);
+      for (const leg of this.legs) leg.rotation.x = 0;
+      for (const arm of this.arms) arm.rotation.x = -1.6 + chop * 1.9;
+      this.root.rotation.x += (chop - 0.5) * 0.12;
+      this.root.scale.set(1, 1 - 0.03 * chop, 1);
+    } else if (this.legs.length || this.arms.length) {
       // running: legs swing opposite each other, each arm swings opposite its own leg, body bobs twice per stride
       const flying = this.enemy.flying;
       const swing = flying ? 0.25 : 0.7;

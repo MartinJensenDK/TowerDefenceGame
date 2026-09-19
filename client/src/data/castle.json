@@ -1,0 +1,30 @@
+{
+  "barricade": {
+    "levels": [
+      { "cost": 150, "hp": 250 },
+      { "cost": 120, "hp": 400 },
+      { "cost": 160, "hp": 600 },
+      { "cost": 210, "hp": 850 },
+      { "cost": 270, "hp": 1150 },
+      { "cost": 340, "hp": 1500 },
+      { "cost": 420, "hp": 1900 },
+      { "cost": 510, "hp": 2350 },
+      { "cost": 610, "hp": 2850 },
+      { "cost": 720, "hp": 3400 }
+    ]
+  },
+  "archers": {
+    "levels": [
+      { "cost": 200, "count": 1, "damage": 8, "fireRate": 2, "range": 7 },
+      { "cost": 150, "count": 1, "damage": 10, "fireRate": 2.2, "range": 7.5 },
+      { "cost": 200, "count": 2, "damage": 13, "fireRate": 2.4, "range": 8 },
+      { "cost": 260, "count": 2, "damage": 16, "fireRate": 2.6, "range": 8.5 },
+      { "cost": 330, "count": 3, "damage": 20, "fireRate": 2.8, "range": 9 },
+      { "cost": 410, "count": 3, "damage": 25, "fireRate": 3, "range": 9.5 },
+      { "cost": 500, "count": 4, "damage": 30, "fireRate": 3.2, "range": 10 },
+      { "cost": 600, "count": 4, "damage": 36, "fireRate": 3.4, "range": 10.5 },
+      { "cost": 720, "count": 4, "damage": 43, "fireRate": 3.6, "range": 11 },
+      { "cost": 850, "count": 4, "damage": 52, "fireRate": 4, "range": 12 }
+    ]
+  }
+}

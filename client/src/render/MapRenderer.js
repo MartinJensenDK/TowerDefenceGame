@@ -203,6 +203,15 @@ export class MapRenderer {
     }
     this.group.add(base);
     this.flagWave = FlagWave.attach(base);
+    this.castleRoot = base;
+    // Archer trolls on the walls (`Archer`, `Archer.001`, ...) stay hidden until the upgrade is bought.
+    this.archers = [];
+    base.traverse((o) => {
+      if (/^Archer\d*$/.test(o.name)) this.archers.push(o);
+    });
+    this.archers.sort((a, b) => a.name.localeCompare(b.name));
+    for (const a of this.archers) a.visible = false;
+    this.archerTurn = 0;
 
     for (const path of this.map.paths) {
       const [sx, sy] = path[0];
@@ -237,8 +246,35 @@ export class MapRenderer {
     this.flagWave?.update(this.time);
   }
 
+  /** Shows the first `count` archer trolls on the castle walls. */
+  setArchers(count) {
+    this.archers.forEach((a, i) => {
+      a.visible = i < count;
+    });
+  }
+
+  /** World position an arrow leaves from: the visible archers take turns. */
+  nextArcherMuzzle(target = new THREE.Vector3()) {
+    const visible = this.archers.filter((a) => a.visible);
+    const [bx, by] = this.map.base;
+    if (!visible.length) {
+      const w = this.grid.tileToWorld(bx, by);
+      return target.set(w.x, 2.2, w.z);
+    }
+    const archer = visible[this.archerTurn++ % visible.length];
+    archer.getWorldPosition(target);
+    target.y += 0.55;
+    return target;
+  }
+
+  /** The tile under the pointer; clicking the castle model itself counts as its base tile. */
   pickTile(raycaster) {
     const hits = raycaster.intersectObjects(this.groundMeshes, false);
+    const castleHits = this.castleRoot ? raycaster.intersectObject(this.castleRoot, true) : [];
+    if (castleHits.length && (!hits.length || castleHits[0].distance < hits[0].distance)) {
+      const [x, y] = this.map.base;
+      return { x, y, type: TILE.CASTLE, castle: true };
+    }
     if (!hits.length) return null;
     const { object, instanceId } = hits[0];
     return object.userData.tiles[instanceId] ?? null;

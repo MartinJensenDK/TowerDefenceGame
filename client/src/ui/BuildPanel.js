@@ -1,6 +1,9 @@
 import { t } from '../i18n/i18n.js';
 import { TARGETING_MODES } from '../game/Tower.js';
 import { levelColor } from '../data/levelColors.js';
+import { CASTLE_UPGRADES } from '../game/Castle.js';
+
+const CASTLE_STAT_KEYS = ['hp', 'count', 'damage', 'fireRate', 'range'];
 
 const STAT_KEYS = ['damage', 'fireRate', 'range', 'tickInterval', 'freezeRadius', 'slow'];
 
@@ -21,8 +24,9 @@ export class BuildPanel {
     this.onUpgrade = null;
     this.onSell = null;
     this.onTargeting = null;
+    this.onCastleUpgrade = null;
     this.onClose = null;
-    this.target = null; // { kind:'build', tile } | { kind:'tower', tower }
+    this.target = null; // { kind:'build', tile } | { kind:'tower', tower } | { kind:'castle', castle }
   }
 
   get visible() {
@@ -41,10 +45,61 @@ export class BuildPanel {
     this.root.hidden = false;
   }
 
+  showCastle(castle, gold) {
+    this.target = { kind: 'castle', castle };
+    this.#renderCastle(gold);
+    this.root.hidden = false;
+  }
+
   refresh(gold) {
     if (!this.visible || !this.target) return;
     if (this.target.kind === 'build') this.#refreshBuild(gold);
+    else if (this.target.kind === 'castle') this.#refreshCastle(gold);
     else this.#refreshTower(gold);
+  }
+
+  #castleButtonLabel(castle, kind) {
+    if (!castle.canUpgrade(kind)) return t('castle.maxLevel');
+    return t(castle.level(kind) === 0 ? 'castle.buy' : 'castle.upgrade', { cost: castle.upgradeCost(kind) });
+  }
+
+  #refreshCastle(gold) {
+    const { castle } = this.target;
+    for (const btn of this.root.querySelectorAll('[data-castle]')) {
+      const kind = btn.dataset.castle;
+      const can = castle.canUpgrade(kind);
+      btn.disabled = !can || gold < castle.upgradeCost(kind);
+      btn.textContent = this.#castleButtonLabel(castle, kind);
+    }
+  }
+
+  #renderCastle(gold) {
+    const { castle } = this.target;
+    const rows = CASTLE_UPGRADES.map((kind) => {
+      const level = castle.level(kind);
+      const stats = castle.stats(kind);
+      const next = castle.nextStats(kind);
+      const statList = CASTLE_STAT_KEYS.filter((k) => (stats && k in stats) || (next && k in next))
+        .map((k) => {
+          const now = stats ? formatStat(k, stats[k]) : '–';
+          const then = next && next[k] !== stats?.[k] ? `<em>→ ${formatStat(k, next[k])}</em>` : '';
+          return `<li><span>${t(`castle.stat.${k}`)}</span><strong>${now} ${then}</strong></li>`;
+        })
+        .join('');
+      const can = castle.canUpgrade(kind);
+      const affordable = can && gold >= castle.upgradeCost(kind);
+      return `<section class="castle-upgrade" data-kind="${kind}">
+          <h3><span class="level-swatch" style="background:${levelColor(Math.max(0, level - 1))}; visibility:${level ? 'visible' : 'hidden'}"></span>${t(`castle.${kind}.name`)} <span class="level">${t('castle.level', { level, max: castle.maxLevel(kind) })}</span></h3>
+          <p class="tower-blurb">${t(`castle.${kind}.blurb`)}</p>
+          <ul class="stats">${statList}</ul>
+          <button class="btn primary" data-castle="${kind}" ${affordable ? '' : 'disabled'}>${this.#castleButtonLabel(castle, kind)}</button>
+        </section>`;
+    }).join('');
+    this.root.innerHTML = `${this.#header(t('castle.title'))}${rows}`;
+    this.#bindCommon();
+    for (const btn of this.root.querySelectorAll('[data-castle]')) {
+      btn.addEventListener('click', () => this.onCastleUpgrade?.(btn.dataset.castle));
+    }
   }
 
   #refreshBuild(gold) {

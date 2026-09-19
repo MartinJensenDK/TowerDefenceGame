@@ -1,3 +1,5 @@
+import { BARRICADE_STOP_GAP } from './Castle.js';
+
 let nextId = 1;
 
 /** A troll walking a world-space waypoint path. Pure data + movement. */
@@ -29,6 +31,9 @@ export class Enemy {
     this.speedMultiplier = 1;
     this.alive = true;
     this.reachedBase = false;
+    this.attack = def.attack ?? 0; // damage per second against a barricade
+    this.blockedBy = null; // the barricade this troll is hacking at, if any
+    this.queueGap = 0.3 + ((this.id * 7) % 5) * 0.28; // trolls bunch up at different distances
     this.#updatePosition();
   }
 
@@ -36,11 +41,24 @@ export class Enemy {
     return this.totalLength - this.traveled;
   }
 
-  update(dt, grid) {
+  /**
+   * Moves along the path. A standing `barricade` (see Castle) stops walkers a little short of it and
+   * marks them as hacking at it (`blockedBy`); flyers sail over.
+   */
+  update(dt, grid, barricade = null) {
     if (!this.alive || this.reachedBase) return;
     const tile = grid.worldToTile(this.x, this.z);
     this.speedMultiplier = this.flying ? 1 : grid.speedMultiplierAt(tile.x, tile.y);
     let remaining = this.baseSpeed * this.speedMultiplier * dt;
+    this.blockedBy = null;
+    if (barricade?.blocking && !this.flying) {
+      const stopAt = barricade.distance - BARRICADE_STOP_GAP - this.queueGap;
+      const allowed = Math.max(0, stopAt - this.traveled);
+      if (allowed < remaining) {
+        remaining = allowed;
+        this.blockedBy = barricade;
+      }
+    }
     while (remaining > 0 && this.segment < this.segLengths.length) {
       const segLen = this.segLengths[this.segment];
       const left = segLen - this.segProgress;

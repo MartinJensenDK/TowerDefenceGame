@@ -61,6 +61,11 @@ button { font: inherit; cursor: pointer; }
 }
 .panel-header { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
 .panel-header h2 { font-size: 1.05rem; display: flex; align-items: center; gap: 0.4rem; }
+.castle-upgrade { border-top: 2px dashed rgba(43, 29, 14, 0.2); padding-top: 0.5rem; margin-top: 0.5rem; }
+.castle-upgrade h3 { font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem; }
+.castle-upgrade h3 .level { margin-left: auto; font-weight: normal; opacity: 0.75; font-size: 0.85rem; }
+.castle-upgrade .stats em { font-style: normal; color: #2f7fbf; font-weight: normal; }
+.castle-upgrade .btn { width: 100%; margin-top: 0.35rem; }
 .level-swatch { display: inline-block; width: 0.85em; height: 0.85em; border-radius: 50%; border: 2px solid #2b1d0e; flex: none; }
 .tower-list { display: grid; gap: 0.5rem; }
 .tower-choice {

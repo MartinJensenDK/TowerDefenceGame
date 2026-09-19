@@ -46,6 +46,10 @@ CloudPanel's Nginx proxies the domain to the App Port, so no extra config is nee
 - `server/` – Express API + SQLite
 - `docs/superpowers/` – design spec and implementation plan
 
+## Castle upgrades
+
+Click the castle to buy upgrades (each up to level 10, stats in `client/src/data/castle.json`): a **Barricade** at every road entry that walking trolls must chop through (bats fly over; it mends itself when left alone and is rebuilt 20 s after being smashed), and **Wall Archers**, troll archers on the walls that shoot at anything near the castle.
+
 ## Generating maps
 The big 100×100 maps (`vast`, `dunes`) are produced by a seeded generator, not written by hand. Re-create one with `node scripts/generate-map.mjs --id vast --name "Vast Meadows" --theme green --seed 7 --layout spiral --description "…"` (`--layout spiral` gives one very long road that circles the map; the default `trails` layout gives three winding roads from three edges) — it writes `client/src/data/maps/<id>.json` with three winding roads from three map edges, a castle near the middle and the 20-wave table from `green.json` scaled up. The same seed always yields the same map; register the result as described below.
 

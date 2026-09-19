@@ -1,6 +1,7 @@
 import { Game } from '../game/Game.js';
+import { TILE } from '../game/Grid.js';
 import { GameSession } from '../render/GameSession.js';
-import { MAPS, TOWER_DEFS, ENEMY_DEFS, TOWER_ORDER } from '../data/index.js';
+import { MAPS, TOWER_DEFS, ENEMY_DEFS, TOWER_ORDER, CASTLE_DEFS } from '../data/index.js';
 import { t } from '../i18n/i18n.js';
 import { Hud } from './Hud.js';
 import { BuildPanel } from './BuildPanel.js';
@@ -12,7 +13,7 @@ export class GameScreen {
     this.sceneManager = sceneManager;
     this.onEnd = onEnd;
     this.onQuit = onQuit;
-    this.game = new Game({ map: MAPS[mapId], towerDefs: TOWER_DEFS, enemyDefs: ENEMY_DEFS });
+    this.game = new Game({ map: MAPS[mapId], towerDefs: TOWER_DEFS, enemyDefs: ENEMY_DEFS, castleDefs: CASTLE_DEFS });
     this.session = new GameSession({ game: this.game, sceneManager, models });
     this.hud = new Hud(document.getElementById('hud'));
     this.panel = new BuildPanel(document.getElementById('build-panel'), { towerDefs: TOWER_DEFS, towerOrder: TOWER_ORDER });
@@ -56,6 +57,13 @@ export class GameScreen {
       }
       else if (r.error === 'notEnoughGold') this.hud.toast(t('build.tooExpensive'));
     };
+    this.panel.onCastleUpgrade = (kind) => {
+      const r = this.game.upgradeCastle(kind);
+      if (r.ok) {
+        this.session.showCastleRange();
+        this.panel.showCastle(this.game.castle, this.game.economy.gold);
+      } else if (r.error === 'notEnoughGold') this.hud.toast(t('build.tooExpensive'));
+    };
     this.panel.onTargeting = (mode) => {
       if (this.selectedTower) this.game.setTargeting(this.selectedTower.id, mode);
     };
@@ -82,8 +90,22 @@ export class GameScreen {
     this.hud.show();
   }
 
+  #isCastleTile(tile) {
+    const [bx, by] = this.game.map.base;
+    return tile.castle || this.game.grid.tileAt(tile.x, tile.y) === TILE.CASTLE || (Math.abs(tile.x - bx) <= 1 && Math.abs(tile.y - by) <= 1);
+  }
+
   #onTileClick(tile) {
     if (!tile) return this.closePanel();
+    if (this.#isCastleTile(tile)) {
+      this.selectedTile = null;
+      this.selectedTower = null;
+      this.session.hideGhost();
+      this.session.highlightCastle();
+      this.session.showCastleRange();
+      this.panel.showCastle(this.game.castle, this.game.economy.gold);
+      return;
+    }
     const tower = this.game.towerAt(tile.x, tile.y);
     if (tower) {
       this.selectedTower = tower;

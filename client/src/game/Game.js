@@ -3,6 +3,7 @@ import { Grid } from './Grid.js';
 import { Enemy } from './Enemy.js';
 import { Tower } from './Tower.js';
 import { Economy } from './Economy.js';
+import { Castle } from './Castle.js';
 import { WaveRun, generateEndlessWave, hpMultiplier, waveBonus } from './Wave.js';
 import { validateMap } from './validateMap.js';
 
@@ -12,7 +13,7 @@ export const EARLY_WAVE_BONUS = 0.1;
 
 /** The whole simulation. No rendering, no DOM. */
 export class Game extends Emitter {
-  constructor({ map, towerDefs, enemyDefs, rng = Math.random }) {
+  constructor({ map, towerDefs, enemyDefs, castleDefs = null, rng = Math.random }) {
     super();
     validateMap(map, enemyDefs);
     this.map = map;
@@ -34,6 +35,7 @@ export class Game extends Emitter {
     this.waveTimer = null;
     this.time = 0;
     this.pathsWorld = map.paths.map((_, i) => this.grid.pathToWorld(i));
+    this.castle = new Castle({ defs: castleDefs, map, grid: this.grid, pathsWorld: this.pathsWorld });
   }
 
   get isOver() {
@@ -87,7 +89,10 @@ export class Game extends Emitter {
 
     for (const e of this.enemies) {
       if (!e.alive || e.reachedBase) continue;
-      e.update(dt, this.grid);
+      e.update(dt, this.grid, this.castle.barricadeFor(e.pathIndex));
+      if (e.blockedBy && e.blockedBy.hit(e.attack * dt)) {
+        this.emit('barricade:smashed', { barricade: e.blockedBy, enemy: e });
+      }
       if (e.reachedBase) {
         const dead = this.economy.loseLives(e.livesCost);
         this.emit('enemy:reachedBase', { enemy: e, livesLost: e.livesCost });
@@ -102,6 +107,9 @@ export class Game extends Emitter {
     for (const t of this.towers) {
       for (const action of t.update(dt, this.enemies)) this.#applyAction(action);
     }
+    const castleTick = this.castle.update(dt, this.enemies);
+    for (const action of castleTick.actions) this.#applyAction(action);
+    for (const barricade of castleTick.rebuilt) this.emit('barricade:rebuilt', { barricade });
 
     this.enemies = this.enemies.filter((e) => e.alive && !e.reachedBase);
 
@@ -166,6 +174,17 @@ export class Game extends Emitter {
     this.#emitEconomy();
     if (tower.def.kind === 'freeze') this.#refreeze();
     return { ok: true, tower };
+  }
+
+  /** Buys the next level of a castle upgrade ('barricade' or 'archers'). */
+  upgradeCastle(kind) {
+    if (this.isOver) return { ok: false, error: 'gameOver' };
+    if (!this.castle.canUpgrade(kind)) return { ok: false, error: this.castle.defs?.[kind] ? 'maxLevel' : 'unknownUpgrade' };
+    if (!this.economy.spend(this.castle.upgradeCost(kind))) return { ok: false, error: 'notEnoughGold' };
+    this.castle.upgrade(kind);
+    this.emit('castle:upgraded', { kind, level: this.castle.level(kind), castle: this.castle });
+    this.#emitEconomy();
+    return { ok: true, level: this.castle.level(kind) };
   }
 
   sellTower(id) {
