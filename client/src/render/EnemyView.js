@@ -29,7 +29,11 @@ export class EnemyView {
       const sign = (m[2] === 'L' ? 1 : -1) * (Number(m[3] || 0) % 2 ? -1 : 1);
       (m[1] === 'Leg' ? this.legs : this.arms).push({ pivot: o, sign });
     });
-    for (const m of this.materials) m.userData.baseEmissive = m.emissive?.getHex() ?? 0;
+    for (const m of this.materials) {
+      m.userData.baseEmissive = m.emissive?.getHex() ?? 0;
+      m.emissiveIntensity = Math.min(1.2, m.emissiveIntensity ?? 1); // Blender strengths of 3-4 would wash out to white
+      m.userData.baseIntensity = m.emissiveIntensity;
+    }
     this.glowing = this.materials.filter((m) => /glow|flame|fire/i.test(m.name) && m.userData.baseEmissive);
     this.height = new THREE.Box3().setFromObject(this.root).max.y;
     this.cadence = enemy.def.cadence ?? DEFAULT_CADENCE; // walk cycles per second at full speed
@@ -103,7 +107,7 @@ export class EnemyView {
     this.walkT += dt * (hacking ? 14 : this.cadence * this.enemy.speedMultiplier);
     const s = Math.sin(this.walkT);
     this.glowT += dt;
-    for (const m of this.glowing) m.emissiveIntensity = 0.75 + 0.25 * Math.sin(this.glowT * 7 + m.id) * Math.sin(this.glowT * 11);
+    for (const m of this.glowing) m.emissiveIntensity = m.userData.baseIntensity * (0.75 + 0.25 * Math.sin(this.glowT * 7 + m.id) * Math.sin(this.glowT * 11));
     if (this.actions.walk) this.actions.walk.timeScale = hacking ? 0 : this.enemy.speedMultiplier;
     else if (hacking && (this.legs.length || this.arms.length)) {
       // stopped at a barricade: one foot forward, both arms swing from over the head down onto it,
