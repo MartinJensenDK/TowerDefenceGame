@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { MapRenderer } from './MapRenderer.js';
 import { CameraRig } from './CameraRig.js';
 import { Effects } from './Effects.js';
+import { PathPreview } from './PathPreview.js';
 import { EnemyView } from './EnemyView.js';
 import { TowerView, makeGhost } from './TowerView.js';
 import { TILE_TOP } from './SceneManager.js';
@@ -24,6 +25,8 @@ export class GameSession {
       extent: this.mapRenderer.extent,
     });
     this.effects = new Effects(this.scene);
+    this.pathPreview = new PathPreview({ scene: this.scene, paths: game.map.paths.map((_, i) => game.grid.pathToWorld(i)) });
+    this.pathPreview.setVisible(game.wave === 0);
     this.enemyViews = new Map();
     this.towerViews = new Map();
     this.dyingViews = [];
@@ -33,6 +36,7 @@ export class GameSession {
     this.tmp = new THREE.Vector3();
 
     this.unsubscribe = [
+      game.on('wave:started', () => this.pathPreview.setVisible(false)),
       game.on('enemy:spawned', ({ enemy }) => this.enemyViews.set(enemy.id, new EnemyView(enemy, models, this.scene))),
       game.on('enemy:hit', ({ enemy }) => this.enemyViews.get(enemy.id)?.flash()),
       game.on('enemy:died', ({ enemy, gold }) => {
@@ -90,6 +94,7 @@ export class GameSession {
     for (const view of this.towerViews.values()) view.update(dt * this.speed);
     this.effects.update(dt * this.speed);
     this.mapRenderer.update(dt);
+    this.pathPreview.update(dt);
     this.cameraRig.update();
   }
 
@@ -130,6 +135,7 @@ export class GameSession {
     this.towerViews.clear();
     this.dyingViews = [];
     this.effects.dispose();
+    this.pathPreview.dispose();
     this.mapRenderer.dispose();
     this.cameraRig.dispose();
   }
