@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { TILE_TOP } from './SceneManager.js';
 import { towerReach } from './RangeRing.js';
+import { OperatorAntics } from './OperatorAntics.js';
 
 const FIRE_ANIM = 0.25;
 const SPIKE_ANIM = 0.4;
@@ -12,7 +13,7 @@ function lerpAngle(a, b, t) {
 
 /** Visual for one placed tower: turret aiming, squash-and-stretch on fire, spikes, level stars. */
 export class TowerView {
-  constructor(tower, models, scene) {
+  constructor(tower, models, scene, effects = null) {
     this.tower = tower;
     this.scene = scene;
     const inst = models.instantiate(`tower_${tower.type}`);
@@ -27,6 +28,8 @@ export class TowerView {
     });
     this.animT = 0;
     this.spikeT = 0;
+    const operator = this.root.getObjectByName('Operator');
+    this.antics = operator ? new OperatorAntics(operator, { effects }) : null;
     // Optional glTF clips: idle loops, shoot plays once per shot (replaces the squash).
     this.mixer = null;
     this.actions = {};
@@ -63,6 +66,7 @@ export class TowerView {
       this.animT = FIRE_ANIM;
     }
     if (this.tower.type === 'spike') this.spikeT = SPIKE_ANIM;
+    this.antics?.noteFire();
   }
 
   muzzleWorldPosition(target = new THREE.Vector3()) {
@@ -93,6 +97,7 @@ export class TowerView {
       for (const s of this.spikes) s.mesh.position.y = s.baseY + lift;
     }
     this.stars.rotation.y += dt * 1.5;
+    this.antics?.update(dt);
   }
 
   dispose() {

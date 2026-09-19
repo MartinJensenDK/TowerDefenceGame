@@ -60,7 +60,7 @@ export class GameSession {
         view.dispose();
       }),
       game.on('tower:built', ({ tower }) => {
-        this.towerViews.set(tower.id, new TowerView(tower, models, this.scene));
+        this.towerViews.set(tower.id, new TowerView(tower, models, this.scene, this.effects));
         this.hideGhost();
       }),
       game.on('tower:upgraded', ({ tower }) => {

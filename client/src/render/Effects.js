@@ -14,6 +14,7 @@ export class Effects {
     this.shellMat = new THREE.MeshToonMaterial({ color: 0x333333 });
     this.spikeGeo = new THREE.ConeGeometry(0.09, 0.55, 6);
     this.spikeMat = new THREE.MeshToonMaterial({ color: 0xb8bcc4 });
+    this.puffGeo = new THREE.SphereGeometry(0.16, 8, 6);
     this.tmp = new THREE.Vector3();
   }
 
@@ -51,15 +52,15 @@ export class Effects {
     this.items.push({ type: 'projectile', mesh, kind, target, start: from.clone(), t: 0, duration: kind === 'shell' ? 0.55 : 0.16 });
   }
 
-  hitSprite(position, text = 'POW!', color = '#ffd23f') {
+  hitSprite(position, text = 'POW!', color = '#ffd23f', size = 1) {
     const mat = new THREE.SpriteMaterial({ map: this.#texture(text, color), transparent: true, depthTest: false });
     const sprite = new THREE.Sprite(mat);
     sprite.position.copy(position);
     sprite.position.y += 0.4;
     sprite.renderOrder = 20;
-    sprite.scale.set(1.6, 0.8, 1);
+    sprite.scale.set(1.6 * size, 0.8 * size, 1);
     this.scene.add(sprite);
-    this.items.push({ type: 'pop', sprite, t: 0, duration: 0.45 });
+    this.items.push({ type: 'pop', sprite, size, t: 0, duration: 0.45 });
   }
 
   /** Spike tower attack: a ring of spikes shoots out from `center` to the tower's range and sticks in the ground. */
@@ -76,6 +77,22 @@ export class Effects {
       mesh.rotateX(Math.PI / 2);
       this.scene.add(mesh);
       this.items.push({ type: 'spike', mesh, start, end, t: 0, duration: 0.55 });
+    }
+  }
+
+  /** A little cloud of translucent blobs that drifts up and fades: fart, dust, steam. */
+  puff(position, color = '#9bd44a') {
+    for (let i = 0; i < 4; i++) {
+      const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.7, depthWrite: false });
+      const mesh = new THREE.Mesh(this.puffGeo, mat);
+      mesh.position.copy(position);
+      mesh.position.x += (Math.random() - 0.5) * 0.2;
+      mesh.position.z += (Math.random() - 0.5) * 0.2;
+      // spread outwards as well as up so the cloud escapes from behind whoever made it
+      const a = Math.random() * Math.PI * 2;
+      const vel = new THREE.Vector3(Math.cos(a) * 0.7, 0.6 + Math.random() * 0.4, Math.sin(a) * 0.7);
+      this.scene.add(mesh);
+      this.items.push({ type: 'puff', mesh, vel, t: 0, duration: 0.8 + Math.random() * 0.3 });
     }
   }
 
@@ -113,12 +130,21 @@ export class Effects {
           continue;
         }
       } else if (item.type === 'pop') {
-        item.sprite.scale.set(1.6 * (0.5 + k), 0.8 * (0.5 + k), 1);
+        item.sprite.scale.set(1.6 * (0.5 + k) * item.size, 0.8 * (0.5 + k) * item.size, 1);
         item.sprite.position.y += dt * 0.8;
         item.sprite.material.opacity = 1 - k * k;
         if (k >= 1) {
           this.scene.remove(item.sprite);
           item.sprite.material.dispose();
+          continue;
+        }
+      } else if (item.type === 'puff') {
+        item.mesh.position.addScaledVector(item.vel, dt);
+        item.mesh.scale.setScalar(1 + k * 2.6);
+        item.mesh.material.opacity = 0.7 * (1 - k);
+        if (k >= 1) {
+          this.scene.remove(item.mesh);
+          item.mesh.material.dispose();
           continue;
         }
       } else if (item.type === 'spike') {
@@ -149,6 +175,7 @@ export class Effects {
     for (const item of this.items) {
       this.scene.remove(item.mesh ?? item.sprite);
       if (item.sprite) item.sprite.material.dispose();
+      if (item.type === 'puff') item.mesh.material.dispose();
     }
     this.items = [];
     for (const tex of this.textures.values()) tex.dispose();
@@ -158,5 +185,6 @@ export class Effects {
     this.shellMat.dispose();
     this.spikeGeo.dispose();
     this.spikeMat.dispose();
+    this.puffGeo.dispose();
   }
 }
