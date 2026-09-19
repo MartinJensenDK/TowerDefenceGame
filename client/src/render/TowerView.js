@@ -1,21 +1,26 @@
 import * as THREE from 'three';
 import { TILE_TOP } from './SceneManager.js';
 import { towerReach } from './RangeRing.js';
-import { OperatorAntics } from './OperatorAntics.js';
+import { OperatorAntics, THROW_RELEASE } from './OperatorAntics.js';
+import { FlagWave } from './FlagWave.js';
 
 const FIRE_ANIM = 0.25;
 const SPIKE_ANIM = 0.4;
+const STARS_PER_ROW = 5;
 
 function lerpAngle(a, b, t) {
   const d = ((((b - a + Math.PI) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) - Math.PI;
   return a + d * t;
 }
 
-/** Visual for one placed tower: turret aiming, squash-and-stretch on fire, spikes, level stars. */
+/** Visual for one placed tower: turret aiming, squash-and-stretch on fire, spikes, waving flag, level stars. */
 export class TowerView {
   constructor(tower, models, scene, effects = null) {
     this.tower = tower;
     this.scene = scene;
+    this.effects = effects;
+    this.time = 0;
+    this.pendingThrow = null;
     const inst = models.instantiate(`tower_${tower.type}`);
     this.root = inst.root;
     this.turret = inst.turret;
@@ -30,6 +35,7 @@ export class TowerView {
     this.spikeT = 0;
     const operator = this.root.getObjectByName('Operator');
     this.antics = operator ? new OperatorAntics(operator, { effects }) : null;
+    this.flagWave = FlagWave.attach(this.root);
     // Optional glTF clips: idle loops, shoot plays once per shot (replaces the squash).
     this.mixer = null;
     this.actions = {};
@@ -46,14 +52,26 @@ export class TowerView {
     scene.add(this.root);
   }
 
+  /** One gold star per upgrade above the model, in rows of five so level 10 still fits over a tile. */
   setLevel(level) {
     for (const c of [...this.stars.children]) this.stars.remove(c);
     const top = new THREE.Box3().setFromObject(this.root).max.y - TILE_TOP + 0.35;
+    const rows = Math.ceil(level / STARS_PER_ROW);
     for (let i = 0; i < level; i++) {
+      const row = Math.floor(i / STARS_PER_ROW);
+      const inRow = Math.min(STARS_PER_ROW, level - row * STARS_PER_ROW);
+      const col = i - row * STARS_PER_ROW;
       const s = new THREE.Mesh(this.starGeo, this.starMat);
-      s.position.set((i - (level - 1) / 2) * 0.35, top, 0);
+      s.position.set((col - (inRow - 1) / 2) * 0.3, top + (rows - 1 - row) * 0.28, 0);
       this.stars.add(s);
     }
+  }
+
+  /** Frozen tower: the operator turns to the target and flings a bucket of cold water at it. */
+  playThrow(target) {
+    if (!this.antics || !this.effects) return;
+    this.antics.throwAt(this.tower.facing);
+    this.pendingThrow = { target, t: THROW_RELEASE };
   }
 
   playFire() {
@@ -76,7 +94,15 @@ export class TowerView {
   }
 
   update(dt) {
+    this.time += dt;
     this.mixer?.update(dt);
+    if (this.pendingThrow) {
+      this.pendingThrow.t -= dt;
+      if (this.pendingThrow.t <= 0) {
+        this.effects.spawnWater({ from: this.antics.handWorldPosition(new THREE.Vector3()), target: this.pendingThrow.target });
+        this.pendingThrow = null;
+      }
+    }
     if (this.turret !== this.root) {
       this.turret.rotation.y = lerpAngle(this.turret.rotation.y, this.tower.facing, 1 - Math.exp(-dt * 12));
     }
@@ -98,10 +124,12 @@ export class TowerView {
     }
     this.stars.rotation.y += dt * 1.5;
     this.antics?.update(dt);
+    this.flagWave?.update(this.time);
   }
 
   dispose() {
     this.antics?.dispose();
+    this.flagWave?.dispose();
     this.scene.remove(this.root);
     this.starGeo.dispose();
     this.starMat.dispose();

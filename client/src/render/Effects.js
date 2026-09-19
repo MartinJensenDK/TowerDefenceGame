@@ -15,6 +15,8 @@ export class Effects {
     this.spikeGeo = new THREE.ConeGeometry(0.09, 0.55, 6);
     this.spikeMat = new THREE.MeshToonMaterial({ color: 0xb8bcc4 });
     this.puffGeo = new THREE.SphereGeometry(0.16, 8, 6);
+    this.dropGeo = new THREE.SphereGeometry(0.09, 7, 5);
+    this.dropMat = new THREE.MeshToonMaterial({ color: 0x8fd8ff, transparent: true, opacity: 0.85 });
     this.tmp = new THREE.Vector3();
   }
 
@@ -50,6 +52,20 @@ export class Effects {
     mesh.position.copy(from);
     this.scene.add(mesh);
     this.items.push({ type: 'projectile', mesh, kind, target, start: from.clone(), t: 0, duration: kind === 'shell' ? 0.55 : 0.16 });
+  }
+
+  /** Frozen tower: a bucketful of cold water flies in an arc from the operator's hands and splashes on the target. */
+  spawnWater({ from, target, count = 7 }) {
+    const drops = [];
+    for (let i = 0; i < count; i++) {
+      const mesh = new THREE.Mesh(this.dropGeo, this.dropMat);
+      mesh.position.copy(from);
+      mesh.scale.setScalar(0.7 + Math.random() * 0.6);
+      // each drop lags a little and drifts sideways so the stream fans out
+      drops.push({ mesh, lag: i * 0.035, side: (Math.random() - 0.5) * 0.5, lift: 0.9 + Math.random() * 0.5 });
+      this.scene.add(mesh);
+    }
+    this.items.push({ type: 'water', drops, target, start: from.clone(), t: 0, duration: 0.55, landed: false });
   }
 
   hitSprite(position, text = 'POW!', color = '#ffd23f', size = 1) {
@@ -130,6 +146,29 @@ export class Effects {
           this.hitSprite(to, item.kind === 'shell' ? 'BOOM!' : 'POW!', item.kind === 'shell' ? '#ff6b3d' : '#ffd23f');
           continue;
         }
+      } else if (item.type === 'water') {
+        const to = this.#targetPoint(item.target, this.tmp);
+        to.y = item.target.flying ? to.y : 0.25;
+        const dx = to.x - item.start.x;
+        const dz = to.z - item.start.z;
+        const len = Math.hypot(dx, dz) || 1;
+        for (const d of item.drops) {
+          const f = Math.min(1, Math.max(0, (item.t - d.lag) / (item.duration - 0.2)));
+          d.mesh.position.lerpVectors(item.start, to, f);
+          d.mesh.position.x += (-dz / len) * d.side * Math.sin(f * Math.PI);
+          d.mesh.position.z += (dx / len) * d.side * Math.sin(f * Math.PI);
+          d.mesh.position.y += Math.sin(f * Math.PI) * d.lift;
+          d.mesh.visible = f < 1;
+        }
+        if (!item.landed && item.t >= item.duration - 0.2) {
+          item.landed = true;
+          this.puff(to, '#8fd8ff', 0.55);
+          this.hitSprite(to, 'Splash!', '#8fd8ff', 0.8);
+        }
+        if (k >= 1) {
+          for (const d of item.drops) this.scene.remove(d.mesh);
+          continue;
+        }
       } else if (item.type === 'pop') {
         item.sprite.scale.set(1.6 * (0.5 + k) * item.size, 0.8 * (0.5 + k) * item.size, 1);
         item.sprite.position.y += dt * 0.8;
@@ -174,6 +213,10 @@ export class Effects {
 
   dispose() {
     for (const item of this.items) {
+      if (item.type === 'water') {
+        for (const d of item.drops) this.scene.remove(d.mesh);
+        continue;
+      }
       this.scene.remove(item.mesh ?? item.sprite);
       if (item.sprite) item.sprite.material.dispose();
       if (item.type === 'puff') item.mesh.material.dispose();
@@ -187,5 +230,7 @@ export class Effects {
     this.spikeGeo.dispose();
     this.spikeMat.dispose();
     this.puffGeo.dispose();
+    this.dropGeo.dispose();
+    this.dropMat.dispose();
   }
 }

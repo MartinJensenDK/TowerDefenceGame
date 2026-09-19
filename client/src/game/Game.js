@@ -212,6 +212,8 @@ export class Game extends Emitter {
     } else if (a.type === 'areaTick') {
       this.emit('tower:fired', { tower: a.tower, target: null, projectile: 'spikes' });
       for (const e of a.targets) this.#damage(e, a.damage, a.tower);
+    } else if (a.type === 'splash') {
+      this.emit('tower:fired', { tower: a.tower, target: a.target, projectile: 'water' }); // cosmetic only
     }
   }
 

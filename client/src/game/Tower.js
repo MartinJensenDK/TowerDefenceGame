@@ -1,7 +1,11 @@
+import { TILE_SIZE } from './Grid.js';
+
 let nextId = 1;
 
 export const SELL_FACTOR = 0.7;
 export const TARGETING_MODES = ['closest', 'weakest', 'strongest'];
+/** Seconds between the frozen tower operator's buckets of cold water (cosmetic, no damage). */
+export const SPLASH_INTERVAL = 1.6;
 
 /** A placed tower. Handles targeting, cooldowns and level math. Damage is applied by Game. */
 export class Tower {
@@ -70,8 +74,13 @@ export class Tower {
     return enemy.flying ? !!this.def.hitsFlying : this.def.hitsGround !== false;
   }
 
+  /** World-unit reach: `range` for shooting towers, the frozen tiles (plus half a tile) for freeze towers. */
+  get reach() {
+    return this.def.kind === 'freeze' ? (this.stats.freezeRadius + 0.5) * TILE_SIZE : this.stats.range;
+  }
+
   inRange(enemy) {
-    return this.distanceTo(enemy) <= this.stats.range;
+    return this.distanceTo(enemy) <= this.reach;
   }
 
   enemiesInRange(enemies) {
@@ -128,6 +137,17 @@ export class Tower {
         if (targets.length > 0) {
           this.cooldown = this.stats.tickInterval;
           actions.push({ type: 'areaTick', tower: this, targets, damage: this.stats.damage });
+        }
+      }
+    } else if (kind === 'freeze') {
+      // the slow itself is a tile aura (see freezeSource); the operator just throws cold water at whoever is nearby
+      const target = this.pickTarget(enemies);
+      this.targetId = target?.id ?? null;
+      if (target) {
+        this.facing = Math.atan2(target.x - this.x, target.z - this.z);
+        if (this.cooldown === 0) {
+          this.cooldown = SPLASH_INTERVAL;
+          actions.push({ type: 'splash', tower: this, target });
         }
       }
     }

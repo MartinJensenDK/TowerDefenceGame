@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Tower, SELL_FACTOR } from './Tower.js';
+import { Tower, SELL_FACTOR, SPLASH_INTERVAL } from './Tower.js';
 import { Enemy } from './Enemy.js';
 import { Grid } from './Grid.js';
 import { makeTestMap } from './testMap.js';
@@ -27,17 +27,22 @@ describe('Tower economics', () => {
     expect(t.sellRefund).toBe(Math.floor(50 * SELL_FACTOR));
   });
 
-  it('upgrades twice and then refuses', () => {
+  it('upgrades nine times to level 10 and then refuses', () => {
     const t = tower('crossbow');
+    expect(t.maxLevel).toBe(9);
     expect(t.upgrade()).toBe(true);
     expect(t.level).toBe(1);
     expect(t.invested).toBe(90);
     expect(t.upgrade()).toBe(true);
     expect(t.invested).toBe(150);
+    for (let i = 0; i < 7; i++) expect(t.upgrade()).toBe(true);
+    expect(t.level).toBe(9);
+    expect(t.invested).toBe(towers.crossbow.levels.reduce((sum, l) => sum + l.cost, 0));
+    expect(t.stats.damage).toBe(54);
     expect(t.canUpgrade).toBe(false);
     expect(t.upgradeCost).toBeNull();
     expect(t.upgrade()).toBe(false);
-    expect(t.sellRefund).toBe(105);
+    expect(t.sellRefund).toBe(Math.floor(t.invested * SELL_FACTOR));
   });
 });
 
@@ -141,9 +146,17 @@ describe('Tower firing', () => {
     expect(lastTargets).toEqual([a, b]);
   });
 
-  it('frozen towers never fire but expose a freeze source', () => {
-    const t = tower('frozen');
-    expect(t.update(1, [enemyAt('scout', 5)])).toEqual([]);
+  it('frozen towers deal no damage but throw cold water at nearby walkers and expose a freeze source', () => {
+    const t = tower('frozen'); // at (5,1), freezeRadius 1 -> reach 3 world units
+    expect(t.reach).toBe(3);
+    expect(t.update(1, [])).toEqual([]);
+    expect(t.update(1, [enemyAt('bat', 5)])).toEqual([]); // flyers are not on the frozen road
+    expect(t.update(1, [enemyAt('scout', 9)])).toEqual([]); // 4 units away: out of reach
+    const near = enemyAt('scout', 6);
+    const first = t.update(1, [near]);
+    expect(first).toEqual([{ type: 'splash', tower: t, target: near }]);
+    expect(t.update(1, [near])).toEqual([]); // cooling down
+    expect(t.update(SPLASH_INTERVAL, [near])).toHaveLength(1);
     expect(t.freezeSource()).toEqual({ x: 2, y: 0, radius: 1, slow: 0.5 });
     t.upgrade();
     expect(t.freezeSource().radius).toBe(2);

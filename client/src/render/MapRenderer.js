@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { FlagWave } from './FlagWave.js';
 import { TILE_SIZE, TILE } from '../game/Grid.js';
 import { TILE_TOP } from './SceneManager.js';
 import { makeRoadTexture } from './roadTexture.js';
@@ -42,8 +43,7 @@ export class MapRenderer {
     this.ownedGeometries = [];
     this.ownedMaterials = [];
     this.time = 0;
-    this.flag = null;
-    this.flagRest = null;
+    this.flagWave = null;
     this.frozenMaterial = new THREE.MeshToonMaterial({ color: 0x9fdcff, transparent: true, opacity: 0.55, depthWrite: false });
     this.frozenGeometry = new THREE.PlaneGeometry(TILE_SIZE * 0.96, TILE_SIZE * 0.96);
 
@@ -202,7 +202,7 @@ export class MapRenderer {
       base.rotation.y = Math.atan2(px - bx, py - by);
     }
     this.group.add(base);
-    this.#setupFlag(base);
+    this.flagWave = FlagWave.attach(base);
 
     for (const path of this.map.paths) {
       const [sx, sy] = path[0];
@@ -213,38 +213,6 @@ export class MapRenderer {
       gate.rotation.y = Math.atan2(nx - sx, ny - sy);
       this.group.add(gate);
     }
-  }
-
-  /**
-   * Prepares the castle's `Flag` mesh for per-frame waving: the geometry and material are cloned
-   * (the ModelLibrary template owns the originals) and the rest positions are copied out.
-   * The cloth runs along local +X from the pole; of the remaining two axes the thinner one is the
-   * "flat" axis (the one the cloth folds across) and the other is "up", which works for both the
-   * GLB flag (XZ plane) and the placeholder plane (XY plane).
-   */
-  #setupFlag(base) {
-    const flag = base.getObjectByName('Flag') ?? null;
-    const src = flag?.isMesh ? flag.geometry?.attributes?.position : null;
-    // Interleaved attributes would not be addressable as i * 3, so leave those flags static.
-    if (!src || src.isInterleavedBufferAttribute || src.itemSize !== 3) return;
-
-    flag.geometry = flag.geometry.clone();
-    this.ownedGeometries.push(flag.geometry);
-    if (flag.material && !Array.isArray(flag.material)) {
-      flag.material = flag.material.clone();
-      flag.material.side = THREE.DoubleSide;
-      this.ownedMaterials.push(flag.material);
-    }
-
-    const position = flag.geometry.attributes.position;
-    this.flagRest = new Float32Array(position.array);
-    flag.geometry.computeBoundingBox();
-    const bb = flag.geometry.boundingBox;
-    this.flagX0 = bb.min.x;
-    this.flagWidth = Math.max(1e-3, bb.max.x - bb.min.x);
-    this.flagFlat = bb.max.y - bb.min.y <= bb.max.z - bb.min.z ? 1 : 2;
-    this.flagUp = this.flagFlat === 1 ? 2 : 1;
-    this.flag = flag;
   }
 
   /** Replaces the frozen overlays with one plane per frozen road tile. */
@@ -266,27 +234,7 @@ export class MapRenderer {
     for (const [i, plane] of this.frozenGroup.children.entries()) {
       plane.position.y = 0.02 + 0.015 * Math.sin(this.time * 3 + i);
     }
-    this.#waveFlag();
-  }
-
-  /** Displaces the cloth away from its rest shape; the pole edge (f = 0) stays put. */
-  #waveFlag() {
-    if (!this.flag || !this.flagRest) return;
-    const position = this.flag.geometry.attributes.position;
-    const arr = position.array;
-    const rest = this.flagRest;
-    const flat = this.flagFlat;
-    const up = this.flagUp;
-    const t = this.time;
-    for (let i = 0; i < position.count; i++) {
-      const b = i * 3;
-      const x = rest[b];
-      const f = (x - this.flagX0) / this.flagWidth; // 0 at the pole, 1 at the free end
-      arr[b + flat] = rest[b + flat] + Math.sin(x * 4 - t * 5) * 0.1 * f;
-      arr[b + up] = rest[b + up] + Math.sin(x * 6 - t * 7) * 0.06 * f;
-    }
-    position.needsUpdate = true;
-    this.flag.geometry.computeVertexNormals();
+    this.flagWave?.update(this.time);
   }
 
   pickTile(raycaster) {
@@ -305,5 +253,6 @@ export class MapRenderer {
     for (const m of this.ownedMaterials) m.dispose();
     this.frozenGeometry.dispose();
     this.frozenMaterial.dispose();
+    this.flagWave?.dispose();
   }
 }

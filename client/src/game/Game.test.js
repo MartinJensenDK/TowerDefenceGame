@@ -62,6 +62,20 @@ describe('Game building', () => {
     expect(frozen).toHaveBeenCalledTimes(3);
   });
 
+  it('frozen towers throw cold water at walkers on the road without hurting them', () => {
+    const g = makeGame();
+    g.buildTower('frozen', 2, 0);
+    const fired = vi.fn();
+    const hit = vi.fn();
+    g.on('tower:fired', fired);
+    g.on('enemy:hit', hit);
+    g.startNextWave();
+    for (let i = 0; i < 120; i++) g.update(0.05); // walkers pass the tower at (2,0) along row 1
+    expect(fired).toHaveBeenCalled();
+    expect(fired.mock.calls.every(([e]) => e.projectile === 'water' && e.target)).toBe(true);
+    expect(hit).not.toHaveBeenCalled();
+  });
+
   it('only emits tile:frozenChanged when the frozen tile set actually changes', () => {
     const g = makeGame();
     const frozen = vi.fn();

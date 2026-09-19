@@ -5,6 +5,8 @@ const FIRE_QUIET = 1.2; // seconds after a shot before the operator starts fooli
 const IDLE_MIN = 2.5;
 const IDLE_MAX = 6.5;
 const STAGGER = 0.7; // no two operators start an antic within this many seconds of each other
+export const THROW_DURATION = 0.75;
+export const THROW_RELEASE = 0.38; // seconds into the throw when whatever is in the hands leaves them
 
 /** Smooth 0→1→0 envelope over a phase 0..1. */
 const bump = (t) => Math.sin(Math.min(1, Math.max(0, t)) * Math.PI);
@@ -48,6 +50,9 @@ export class OperatorAntics {
     this.armR = byName(/^Operator_ArmR/)[0] ?? null;
     this.head = byName(/^Operator_Head/)[0] ?? null;
     this.pupils = byName(/^Operator_Pupil/);
+    this.handR = byName(/^Operator_Hand/).find((h) => this.armR && this.#isUnder(h, this.armR)) ?? null;
+    this.throwT = 0;
+    this.throwYaw = 0;
     this.parts = [this.armL, this.armR, this.head, ...this.pupils].filter(Boolean);
     this.rest = new Map(this.parts.map((o) => [o, { p: o.position.clone(), q: o.quaternion.clone() }]));
     this.lastFire = -Infinity;
@@ -64,6 +69,60 @@ export class OperatorAntics {
 
   noteFire() {
     this.lastFire = this.time;
+  }
+
+  #isUnder(obj, ancestor) {
+    for (let o = obj.parent; o; o = o.parent) if (o === ancestor) return true;
+    return false;
+  }
+
+  /**
+   * Turns to face `yaw` (radians about the parent's Y, same frame as the tower's facing) and
+   * hurls whatever the right hand holds: wind up behind the back, swing over the shoulder, follow
+   * through. Interrupts any antic in progress and keeps the operator quiet for a moment after.
+   */
+  throwAt(yaw) {
+    if (this.current) this.#finish();
+    this.throwT = THROW_DURATION;
+    this.throwYaw = yaw;
+    this.noteFire();
+  }
+
+  /** World position of the right hand (or the shoulder when the model has no hand), for spawning thrown things. */
+  handWorldPosition(target = new THREE.Vector3()) {
+    const src = this.handR ?? this.armR ?? this.op;
+    src.getWorldPosition(target);
+    if (!this.handR) target.y += 0.15;
+    return target;
+  }
+
+  #throwFrame(dt) {
+    this.throwT = Math.max(0, this.throwT - dt);
+    const k = 1 - this.throwT / THROW_DURATION;
+    this.#restore();
+    const face = ease(k * 4);
+    this.q.setFromAxisAngle(Y, this.throwYaw * face);
+    this.op.quaternion.copy(this.baseQuat).premultiply(this.q);
+    const rel = THROW_RELEASE / THROW_DURATION;
+    let raise;
+    let lean;
+    if (k < rel) {
+      // wind up: both hands swing back and down, body leans back
+      const w = ease(k / rel);
+      raise = -0.9 * w;
+      lean = -0.18 * w;
+    } else {
+      // swing: arms whip forward and up, then settle back down
+      const sw = (k - rel) / (1 - rel);
+      raise = 2.3 * bump(Math.min(1, sw * 1.3)) + 0.4 * (1 - sw);
+      lean = 0.25 * bump(sw);
+    }
+    this.#arm(this.armR, raise, 0.15, 1);
+    this.#arm(this.armL, raise * 0.8, 0.15, -1);
+    this.q.setFromAxisAngle(X, lean);
+    this.op.quaternion.multiply(this.q);
+    this.#headTurn(0, 0, -0.2 * bump(k));
+    if (this.throwT === 0) this.#restore();
   }
 
   #restore() {
@@ -124,6 +183,10 @@ export class OperatorAntics {
   update(dt) {
     this.time += dt;
     clock = Math.max(clock, this.time); // a shared clock that only ever moves forward
+    if (this.throwT > 0) {
+      this.#throwFrame(dt);
+      return;
+    }
     const quiet = this.time - this.lastFire > FIRE_QUIET;
     if (!this.current) {
       if (!quiet || this.time < this.nextAt || clock - lastStart < STAGGER) return;

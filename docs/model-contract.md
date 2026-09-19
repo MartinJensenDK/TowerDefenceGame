@@ -30,7 +30,7 @@ All 14 models exist in `blender/troll-towers.blend` (one collection per model) a
 - Models face **+Z** ("forward"). Turrets and gates are rotated by the game around Y.
 
 ## Textures
-Image textures on the Base Color input are exported inside the `.glb` and the game keeps them (it swaps the material for a toon material but copies the `map`). The castle and spawn gate use small procedural brick and shingle images generated in Blender (`tt_helpers`: `make_texture`, `tex_mat`, `box_uv`, `cyl_uv`); keep textures at 256×256 or smaller and set interpolation to *Closest* for the cartoon look.
+Image textures on the Base Color input are exported inside the `.glb` and the game keeps them (it swaps the material for a toon material but copies the `map`). The castle and spawn gate use small procedural brick and shingle images generated in Blender (`tt_helpers`: `make_texture`, `tex_mat`, `box_uv`, `cyl_uv`); keep textures at 256×256 or smaller and set interpolation to *Closest* for the cartoon look. Towers reuse the castle's `CastleStoneTex` (same 1.2 m brick repeat) on stone and the `PlankTex` planks on wood, plus the castle's `FlagBlue`, `Gold` and `Moss` materials, so tower details match the buildings.
 
 ## Named parts (optional, but recommended for towers)
 - `Turret` – a child object that rotates toward the target (crossbow, cannon). If missing, the whole model rotates.
@@ -39,7 +39,8 @@ Image textures on the Base Color input are exported inside the `.glb` and the ga
 - `LegL` / `LegR` / `ArmL` / `ArmR` – Empties at the hips and shoulders of a troll with the leg/arm parts (and the weapon) parented under them. The game swings them about X while the troll runs; without them it falls back to squash-and-stretch.
 - `WingL` / `WingR` – flap on flying trolls.
 - `Operator` – the little troll on the tower (purely cosmetic). The game plays idle antics between shots on its children: `Operator_ArmL` / `Operator_ArmR` are Empties at the shoulders with the arm, hand and fingers parented under them (swung for nose picking, belly grabbing, waving, dancing, scratching), `Operator_Head` is turned and tilted, `Operator_Pupil` moved to cross the eyes. Missing parts are simply skipped.
-- `Flag` – on the castle: a subdivided plane whose pole edge is at local x = 0 and whose cloth extends along +X. The game waves it in the wind by displacing vertices, so the more subdivisions the smoother (16×8 is used).
+- `Flag` – on the castle and on every tower: a subdivided plane whose pole edge is at local x = 0 and whose cloth extends along +X. The game waves it in the wind by displacing vertices (`render/FlagWave.js`), so the more subdivisions the smoother (16×8 is used). One `Flag` per model; small flags ripple faster and less far than the castle banner.
+- `Operator_Bucket*` (frozen tower) – the bucket hangs under `Operator_ArmR` so it swings with the throw; the game spawns the water from the first `Operator_Hand` under that arm.
 - `Princess` – the princess troll on the castle balcony (purely cosmetic).
 
 ## Animations (optional)

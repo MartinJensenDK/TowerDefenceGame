@@ -6,9 +6,16 @@
     "hitsGround": true,
     "projectile": "arrow",
     "levels": [
-      { "cost": 50, "fireRate": 3.0, "damage": 6, "range": 7 },
+      { "cost": 50, "fireRate": 3, "damage": 6, "range": 7 },
       { "cost": 40, "fireRate": 3.5, "damage": 8, "range": 8 },
-      { "cost": 60, "fireRate": 4.0, "damage": 11, "range": 9 }
+      { "cost": 60, "fireRate": 4, "damage": 11, "range": 9 },
+      { "cost": 80, "fireRate": 4.4, "damage": 14, "range": 9.5 },
+      { "cost": 110, "fireRate": 4.8, "damage": 18, "range": 10 },
+      { "cost": 150, "fireRate": 5.2, "damage": 23, "range": 10.5 },
+      { "cost": 200, "fireRate": 5.6, "damage": 29, "range": 11 },
+      { "cost": 260, "fireRate": 6, "damage": 36, "range": 11.5 },
+      { "cost": 330, "fireRate": 6.4, "damage": 44, "range": 12 },
+      { "cost": 420, "fireRate": 6.8, "damage": 54, "range": 12.5 }
     ]
   },
   "spike": {
@@ -19,7 +26,14 @@
     "levels": [
       { "cost": 80, "tickInterval": 0.5, "damage": 4, "range": 3.5 },
       { "cost": 60, "tickInterval": 0.5, "damage": 6, "range": 4 },
-      { "cost": 90, "tickInterval": 0.5, "damage": 9, "range": 4.5 }
+      { "cost": 90, "tickInterval": 0.5, "damage": 9, "range": 4.5 },
+      { "cost": 120, "tickInterval": 0.5, "damage": 12, "range": 5 },
+      { "cost": 160, "tickInterval": 0.5, "damage": 16, "range": 5.5 },
+      { "cost": 210, "tickInterval": 0.5, "damage": 21, "range": 6 },
+      { "cost": 270, "tickInterval": 0.5, "damage": 27, "range": 6.5 },
+      { "cost": 340, "tickInterval": 0.5, "damage": 34, "range": 7 },
+      { "cost": 420, "tickInterval": 0.5, "damage": 42, "range": 7.5 },
+      { "cost": 520, "tickInterval": 0.5, "damage": 52, "range": 8 }
     ]
   },
   "cannon": {
@@ -31,7 +45,14 @@
     "levels": [
       { "cost": 150, "fireRate": 0.5, "damage": 40, "range": 6, "splashRadius": 2.5, "splashFactor": 0.5 },
       { "cost": 120, "fireRate": 0.6, "damage": 60, "range": 7, "splashRadius": 2.5, "splashFactor": 0.5 },
-      { "cost": 180, "fireRate": 0.7, "damage": 90, "range": 8, "splashRadius": 2.5, "splashFactor": 0.5 }
+      { "cost": 180, "fireRate": 0.7, "damage": 90, "range": 8, "splashRadius": 2.5, "splashFactor": 0.5 },
+      { "cost": 240, "fireRate": 0.8, "damage": 125, "range": 8.5, "splashRadius": 2.75, "splashFactor": 0.5 },
+      { "cost": 320, "fireRate": 0.9, "damage": 165, "range": 9, "splashRadius": 2.75, "splashFactor": 0.5 },
+      { "cost": 420, "fireRate": 1, "damage": 210, "range": 9.5, "splashRadius": 3, "splashFactor": 0.5 },
+      { "cost": 540, "fireRate": 1.1, "damage": 260, "range": 10, "splashRadius": 3, "splashFactor": 0.5 },
+      { "cost": 680, "fireRate": 1.2, "damage": 320, "range": 10.5, "splashRadius": 3.25, "splashFactor": 0.5 },
+      { "cost": 840, "fireRate": 1.3, "damage": 390, "range": 11, "splashRadius": 3.25, "splashFactor": 0.5 },
+      { "cost": 1030, "fireRate": 1.4, "damage": 470, "range": 11.5, "splashRadius": 3.5, "splashFactor": 0.5 }
     ]
   },
   "frozen": {
@@ -42,7 +63,14 @@
     "levels": [
       { "cost": 100, "freezeRadius": 1, "slow": 0.5 },
       { "cost": 80, "freezeRadius": 2, "slow": 0.5 },
-      { "cost": 120, "freezeRadius": 3, "slow": 0.5 }
+      { "cost": 120, "freezeRadius": 3, "slow": 0.5 },
+      { "cost": 160, "freezeRadius": 3, "slow": 0.45 },
+      { "cost": 210, "freezeRadius": 4, "slow": 0.45 },
+      { "cost": 270, "freezeRadius": 4, "slow": 0.4 },
+      { "cost": 340, "freezeRadius": 5, "slow": 0.4 },
+      { "cost": 420, "freezeRadius": 5, "slow": 0.35 },
+      { "cost": 510, "freezeRadius": 6, "slow": 0.35 },
+      { "cost": 620, "freezeRadius": 6, "slow": 0.3 }
     ]
   }
 }

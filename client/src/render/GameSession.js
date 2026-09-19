@@ -75,6 +75,10 @@ export class GameSession {
       game.on('tower:fired', ({ tower, target, projectile }) => {
         const view = this.towerViews.get(tower.id);
         if (!view) return;
+        if (projectile === 'water') {
+          view.playThrow(target); // no squash: an ice block does not recoil
+          return;
+        }
         view.playFire();
         if (projectile === 'spikes') {
           this.effects.spikeBurst({ center: this.tmp.set(tower.x, TILE_TOP + 0.8, tower.z), range: tower.stats.range });
