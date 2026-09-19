@@ -81,18 +81,19 @@ export class Effects {
   }
 
   /** A little cloud of translucent blobs that drifts up and fades: fart, dust, steam. */
-  puff(position, color = '#9bd44a') {
+  puff(position, color = '#9bd44a', size = 1) {
     for (let i = 0; i < 4; i++) {
       const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.7, depthWrite: false });
       const mesh = new THREE.Mesh(this.puffGeo, mat);
       mesh.position.copy(position);
-      mesh.position.x += (Math.random() - 0.5) * 0.2;
-      mesh.position.z += (Math.random() - 0.5) * 0.2;
+      mesh.position.x += (Math.random() - 0.5) * 0.2 * size;
+      mesh.position.z += (Math.random() - 0.5) * 0.2 * size;
+      mesh.scale.setScalar(size);
       // spread outwards as well as up so the cloud escapes from behind whoever made it
       const a = Math.random() * Math.PI * 2;
-      const vel = new THREE.Vector3(Math.cos(a) * 0.7, 0.6 + Math.random() * 0.4, Math.sin(a) * 0.7);
+      const vel = new THREE.Vector3(Math.cos(a) * 0.7 * size, (0.6 + Math.random() * 0.4) * size, Math.sin(a) * 0.7 * size);
       this.scene.add(mesh);
-      this.items.push({ type: 'puff', mesh, vel, t: 0, duration: 0.8 + Math.random() * 0.3 });
+      this.items.push({ type: 'puff', mesh, vel, size, t: 0, duration: 0.8 + Math.random() * 0.3 });
     }
   }
 
@@ -140,7 +141,7 @@ export class Effects {
         }
       } else if (item.type === 'puff') {
         item.mesh.position.addScaledVector(item.vel, dt);
-        item.mesh.scale.setScalar(1 + k * 2.6);
+        item.mesh.scale.setScalar(item.size * (1 + k * 2.6));
         item.mesh.material.opacity = 0.7 * (1 - k);
         if (k >= 1) {
           this.scene.remove(item.mesh);

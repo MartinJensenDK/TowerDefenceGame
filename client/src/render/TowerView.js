@@ -101,6 +101,7 @@ export class TowerView {
   }
 
   dispose() {
+    this.antics?.dispose();
     this.scene.remove(this.root);
     this.starGeo.dispose();
     this.starMat.dispose();
