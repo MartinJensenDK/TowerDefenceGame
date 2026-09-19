@@ -210,3 +210,47 @@ describe('Game waves', () => {
     expect(() => makeGame({ base: [0, 0] })).toThrow(/base must be on a road tile/);
   });
 });
+
+describe('interval waves', () => {
+  it('starts the next wave on the interval while the previous one is still running', () => {
+    // Wave 1 uses a brute (slow, 10-unit path takes ~7.1s) instead of the default scout
+    // (~3.3s) so it is still in flight when the 5s interval fires wave 2 - otherwise wave 1
+    // would already have reached the base and ended before the interval elapsed, and the
+    // "early" flag below would never be true.
+    const g = makeGame({
+      modifiers: { frostBonus: 1, waveInterval: 5 },
+      waves: makeTestMap().waves.map((w, i) => (i === 0 ? { spawns: [{ type: 'brute', count: 1, interval: 1 }] } : w)),
+    });
+    const started = vi.fn();
+    g.on('wave:started', started);
+    g.startNextWave();
+    expect(g.waveTimer).toBe(5);
+    run(g, 4.9);
+    expect(g.wave).toBe(1);
+    run(g, 0.2);
+    expect(g.wave).toBe(2);
+    expect(started).toHaveBeenLastCalledWith({ wave: 2, early: true, endless: false });
+    expect(g.waveTimer).toBeCloseTo(5, 0);
+  });
+
+  it('resets the timer on a manual start and has no timer without the modifier', () => {
+    const g = makeGame({ modifiers: { frostBonus: 1, waveInterval: 5 } });
+    g.startNextWave();
+    run(g, 3);
+    g.startNextWave();
+    expect(g.waveTimer).toBe(5);
+    const plain = makeGame();
+    plain.startNextWave();
+    expect(plain.waveTimer).toBeNull();
+    run(plain, 30);
+    expect(plain.wave).toBe(1);
+  });
+
+  it('stops the timer once every wave has been started', () => {
+    const g = makeGame({ modifiers: { frostBonus: 1, waveInterval: 0.5 } });
+    g.startNextWave();
+    run(g, 12);
+    expect(g.wave).toBe(20);
+    expect(g.waveTimer).toBeNull();
+  });
+});

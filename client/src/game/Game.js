@@ -30,6 +30,8 @@ export class Game extends Emitter {
     this.state = 'idle';
     this.autoWave = false;
     this.countdown = null;
+    this.waveInterval = map.modifiers?.waveInterval ?? null;
+    this.waveTimer = null;
     this.time = 0;
     this.pathsWorld = map.paths.map((_, i) => this.grid.pathToWorld(i));
   }
@@ -59,6 +61,7 @@ export class Game extends Emitter {
     run.early = early;
     this.activeWaves.push(run);
     this.state = 'running';
+    this.waveTimer = this.waveInterval !== null && this.canStartWave ? this.waveInterval : null;
     this.emit('wave:started', { wave: this.wave, early, endless });
     return true;
   }
@@ -102,6 +105,14 @@ export class Game extends Emitter {
 
     for (const run of [...this.activeWaves]) {
       if (run.spawningDone && !this.enemies.some((e) => e.wave === run.number)) this.#endWave(run);
+    }
+
+    if (this.waveTimer !== null) {
+      if (!this.canStartWave) this.waveTimer = null;
+      else {
+        this.waveTimer -= dt;
+        if (this.waveTimer <= 0) this.startNextWave();
+      }
     }
 
     if (this.state === 'idle' && this.countdown !== null) {
@@ -224,6 +235,7 @@ export class Game extends Emitter {
   #end(state) {
     this.state = state;
     this.countdown = null;
+    this.waveTimer = null;
     this.emit(state === 'won' ? 'game:won' : 'game:lost', { score: this.economy.score, wave: this.wave });
   }
 

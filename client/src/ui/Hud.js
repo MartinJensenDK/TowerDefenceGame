@@ -44,7 +44,8 @@ export class Hud {
     this.#set('wave', endless ? t('hud.waveEndless', { wave: game.wave }) : t('hud.wave', { wave: game.wave, total: game.totalWaves }));
 
     let nextLabel;
-    if (game.state === 'running') nextLabel = t('hud.callEarly');
+    if (game.waveTimer !== null) nextLabel = t('hud.nextWaveIn', { seconds: Math.ceil(game.waveTimer) });
+    else if (game.state === 'running') nextLabel = t('hud.callEarly');
     else if (game.countdown !== null && game.autoWave) nextLabel = t('hud.nextWaveIn', { seconds: Math.ceil(game.countdown) });
     else nextLabel = t('hud.nextWave');
     this.#set('next', nextLabel);
