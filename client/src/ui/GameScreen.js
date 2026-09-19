@@ -50,7 +50,10 @@ export class GameScreen {
     this.panel.onUpgrade = () => {
       if (!this.selectedTower) return;
       const r = this.game.upgradeTower(this.selectedTower.id);
-      if (r.ok) this.panel.showTower(this.selectedTower, this.game.economy.gold);
+      if (r.ok) {
+        this.session.showRange(this.selectedTower);
+        this.panel.showTower(this.selectedTower, this.game.economy.gold);
+      }
       else if (r.error === 'notEnoughGold') this.hud.toast(t('build.tooExpensive'));
     };
     this.panel.onSell = () => {
@@ -84,6 +87,7 @@ export class GameScreen {
       this.selectedTile = null;
       this.session.hideGhost();
       this.session.highlightTile({ x: tower.tileX, y: tower.tileY });
+      this.session.showRange(tower);
       this.panel.showTower(tower, this.game.economy.gold);
       return;
     }
@@ -91,6 +95,7 @@ export class GameScreen {
       this.selectedTile = tile;
       this.selectedTower = null;
       this.session.highlightTile(tile);
+      this.session.hideRange();
       this.panel.showBuild(tile, this.game.economy.gold);
       if (this.previewType) this.session.showGhost(this.previewType, tile);
       return;
@@ -102,6 +107,7 @@ export class GameScreen {
     this.panel.hide();
     this.session.hideGhost();
     this.session.clearHighlight();
+    this.session.hideRange();
     this.selectedTile = null;
     this.selectedTower = null;
     this.previewType = null;

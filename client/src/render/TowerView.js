@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { TILE_TOP } from './SceneManager.js';
-import { TILE_SIZE } from '../game/Grid.js';
+import { towerReach } from './RangeRing.js';
 
 const FIRE_ANIM = 0.25;
 const SPIKE_ANIM = 0.4;
@@ -114,13 +114,11 @@ export function makeGhost(models, type, def) {
     }
   });
   const ringMat = new THREE.MeshBasicMaterial({ color: 0x66ff66, transparent: true, opacity: 0.45, side: THREE.DoubleSide, depthWrite: false });
-  const ring = new THREE.Mesh(new THREE.RingGeometry(1, 1.1, 48), ringMat);
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.955, 1, 96), ringMat);
   ring.rotation.x = -Math.PI / 2;
   ring.position.y = 0.05;
   root.add(ring);
-  const level0 = def.levels[0];
-  const range = def.kind === 'freeze' ? (level0.freezeRadius + 0.5) * TILE_SIZE : level0.range;
-  ring.scale.setScalar(range);
+  ring.scale.setScalar(towerReach(def, def.levels[0]));
   return {
     root,
     ring,

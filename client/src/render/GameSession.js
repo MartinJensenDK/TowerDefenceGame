@@ -4,6 +4,7 @@ import { CameraRig } from './CameraRig.js';
 import { Effects } from './Effects.js';
 import { PathPreview } from './PathPreview.js';
 import { TileHighlight } from './TileHighlight.js';
+import { RangeRing, towerReach } from './RangeRing.js';
 import { EnemyView } from './EnemyView.js';
 import { TowerView, makeGhost } from './TowerView.js';
 import { TILE_TOP } from './SceneManager.js';
@@ -29,6 +30,7 @@ export class GameSession {
     this.pathPreview = new PathPreview({ scene: this.scene, paths: game.map.paths.map((_, i) => game.grid.pathToWorld(i)) });
     this.pathPreview.setVisible(game.wave === 0);
     this.tileHighlight = new TileHighlight(this.scene);
+    this.rangeRing = new RangeRing(this.scene);
     this.enemyViews = new Map();
     this.towerViews = new Map();
     this.dyingViews = [];
@@ -98,6 +100,7 @@ export class GameSession {
     this.mapRenderer.update(dt);
     this.pathPreview.update(dt);
     this.tileHighlight.update(dt);
+    this.rangeRing.update(dt);
     this.cameraRig.update();
   }
 
@@ -131,6 +134,15 @@ export class GameSession {
     this.tileHighlight.hide();
   }
 
+  /** Shows how far `tower` reaches at its current level. */
+  showRange(tower) {
+    this.rangeRing.show(tower.x, tower.z, towerReach(tower.def, tower.stats));
+  }
+
+  hideRange() {
+    this.rangeRing.hide();
+  }
+
   hideGhost() {
     if (!this.ghost) return;
     this.scene.remove(this.ghost.root);
@@ -142,6 +154,7 @@ export class GameSession {
     for (const off of this.unsubscribe) off();
     this.hideGhost();
     this.tileHighlight.dispose();
+    this.rangeRing.dispose();
     for (const v of this.enemyViews.values()) v.dispose();
     for (const v of this.dyingViews) v.dispose();
     for (const v of this.towerViews.values()) v.dispose();
