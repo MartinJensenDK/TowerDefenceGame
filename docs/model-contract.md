@@ -29,6 +29,9 @@ All 14 models exist in `blender/troll-towers.blend` (one collection per model) a
 - Origin at the **bottom centre** of the model (it is placed exactly on the tile centre at ground level).
 - Models face **+Z** ("forward"). Turrets and gates are rotated by the game around Y.
 
+## Textures
+Image textures on the Base Color input are exported inside the `.glb` and the game keeps them (it swaps the material for a toon material but copies the `map`). The castle and spawn gate use small procedural brick and shingle images generated in Blender (`tt_helpers`: `make_texture`, `tex_mat`, `box_uv`, `cyl_uv`); keep textures at 256×256 or smaller and set interpolation to *Closest* for the cartoon look.
+
 ## Named parts (optional, but recommended for towers)
 - `Turret` – a child object that rotates toward the target (crossbow, cannon). If missing, the whole model rotates.
 - `Muzzle` – an Empty inside `Turret` where projectiles start. If missing, projectiles start 1.2 m above the turret origin.

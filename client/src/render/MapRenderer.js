@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { TILE_SIZE, TILE } from '../game/Grid.js';
 import { TILE_TOP } from './SceneManager.js';
+import { makeRoadTexture } from './roadTexture.js';
 
 export const THEMES = {
   green: { sky: '#9ad7ff', fog: '#bfe6ff', ground: ['#6fbf4a', '#63b03f'], road: '#c9a36b', water: '#3f8fd8', decor: ['decor_tree', 'decor_rock'] },
@@ -47,6 +48,7 @@ export class MapRenderer {
     this.frozenGeometry = new THREE.PlaneGeometry(TILE_SIZE * 0.96, TILE_SIZE * 0.96);
 
     this.#buildTiles();
+    this.#buildPebbles();
     this.#buildDecor();
     this.#buildLandmarks();
     this.group.add(this.frozenGroup);
@@ -75,6 +77,12 @@ export class MapRenderer {
       water: new THREE.MeshToonMaterial({ color: this.theme.water, transparent: true, opacity: 0.9 }),
     };
     mats.castle = new THREE.MeshToonMaterial({ color: new THREE.Color(this.theme.road).multiplyScalar(0.85) });
+    // cobblestones: the box's UVs run 0..1 per face, so the texture tiles once per road tile
+    this.roadTexture = makeRoadTexture(hashString(this.map.id));
+    if (this.roadTexture) {
+      mats.road.map = this.roadTexture;
+      mats.castle.map = this.roadTexture;
+    }
     this.ownedGeometries.push(box);
     this.ownedMaterials.push(mats.g0, mats.g1, mats.road, mats.water, mats.castle);
 
@@ -122,6 +130,47 @@ export class MapRenderer {
     slab.position.set(this.centerX, -TILE_THICKNESS - 0.8, this.centerZ);
     slab.receiveShadow = true;
     this.group.add(slab);
+  }
+
+  /** Small stones scattered along the road edges: one InstancedMesh for the whole map. */
+  #buildPebbles() {
+    const { width, height, tiles } = this.map;
+    const rng = makeRng(hashString(this.map.id + ':pebbles'));
+    const spots = [];
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if (tiles[y][x] !== TILE.ROAD) continue;
+        const n = rng() < 0.55 ? 1 + Math.floor(rng() * 2) : 0;
+        for (let i = 0; i < n; i++) {
+          // hug one of the four tile edges so the stones read as road-side rubble
+          const side = Math.floor(rng() * 4);
+          const along = (rng() - 0.5) * 1.6;
+          const edge = 0.78 + rng() * 0.12;
+          const ox = side === 0 ? -edge : side === 1 ? edge : along;
+          const oz = side === 2 ? -edge : side === 3 ? edge : along;
+          spots.push({ x: (x + 0.5) * TILE_SIZE + ox, z: (y + 0.5) * TILE_SIZE + oz, s: 0.08 + rng() * 0.1, r: rng() * Math.PI });
+        }
+      }
+    }
+    if (!spots.length) return;
+    const geo = new THREE.DodecahedronGeometry(1, 0);
+    const mat = new THREE.MeshToonMaterial({ color: new THREE.Color(this.theme.road).multiplyScalar(0.62) });
+    this.ownedGeometries.push(geo);
+    this.ownedMaterials.push(mat);
+    const mesh = new THREE.InstancedMesh(geo, mat, spots.length);
+    const m = new THREE.Matrix4();
+    const q = new THREE.Quaternion();
+    const up = new THREE.Vector3(0, 1, 0);
+    spots.forEach((p, i) => {
+      q.setFromAxisAngle(up, p.r);
+      m.compose(new THREE.Vector3(p.x, p.s * 0.5, p.z), q, new THREE.Vector3(p.s, p.s * 0.7, p.s));
+      mesh.setMatrixAt(i, m);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    this.pebbles = mesh;
+    this.group.add(mesh);
   }
 
   #buildDecor() {
@@ -250,6 +299,8 @@ export class MapRenderer {
   dispose() {
     this.scene.remove(this.group);
     for (const im of this.groundMeshes) im.dispose?.();
+    this.pebbles?.dispose();
+    this.roadTexture?.dispose();
     for (const g of this.ownedGeometries) g.dispose();
     for (const m of this.ownedMaterials) m.dispose();
     this.frozenGeometry.dispose();
