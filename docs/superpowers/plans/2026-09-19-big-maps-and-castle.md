@@ -92,7 +92,7 @@ Check `client/src/game/*.test.js` for tests that rely on width 6 or on tile (5,0
 ```
 
 - [ ] **Step 4: Update the four maps** exactly as the spec §3 says (base moves one tile in where needed; footprint tiles become `C` except the base tile and the single approach road tile; path end waypoints updated). Resulting rows (verify by printing):
-  - green rows 1–3: `............RCCC`? No — write them out: row 1 `.............CCC`, row 2 `............RRRC`, row 3 `............RCCC`; base `[14,2]`; path `[[0,5],[5,5],[5,9],[12,9],[12,2],[14,2]]`.
+  - green rows 1–3: row 1 `.............CCC`, row 2 `............RRRC`, row 3 `............RCCC`; base `[14,2]`; path `[[0,5],[5,5],[5,9],[12,9],[12,2],[14,2]]`.
   - snow rows 9–11: row 9 `.CCC.........R..`, row 10 `.CRRRRRRRRRRRR..`, row 11 `.CCC............`; base `[2,10]`; path unchanged.
   - desert rows 3–5: row 3 `........D....CCC`, row 4 `......RRRRRRRRRC`, row 5 `......R......CCC`; base `[14,4]`; path `[[0,6],[6,6],[6,4],[14,4]]`.
   - water rows 5–7: row 5 `....R......D.CCC`, row 6 `....RRRRRRRRRRRC`, row 7 `WW.......R...CCC`; base `[14,6]`; both paths end `[14,6]`.
@@ -268,12 +268,8 @@ function walkPath(rng, edge, base) {
     const dx = Math.sign(x1 - x0);
     const dy = Math.sign(y1 - y0);
     for (let cx = x0, cy = y0; ; cx += dx, cy += dy) {
-      if (inFootprint(cx, cy, base) && !(cx === bx && cy === by)) {
-        // only the final approach may touch the footprint
-        if (!(cx + dx === bx && cy + dy === by) && !(cx === bx || cy === by)) return false;
-      }
       tiles.add(`${cx},${cy}`);
-      if (cx === x1 && cy === y1) return true;
+      if (cx === x1 && cy === y1) return;
     }
   };
   for (let guard = 0; guard < 200; guard++) {
@@ -396,7 +392,7 @@ function cli() {
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) cli();
 ```
 
-Note on `walkPath`: the inner `mark` helper's footprint test is redundant with the pre-check loop; keep the pre-check (segment rejected → path restarts) and simplify `mark` to only collect tiles. Make the final approach explicit: when the remaining distance on one axis is 0 and the other axis is being closed, the segment ends exactly on the base tile — `Math.min(Math.abs(rem), …)` guarantees no overshoot, and the loop continues until both are 0.
+Note on `walkPath`: the pre-check loop rejects any segment that enters the footprint unless it is the final approach (segment rejected → the whole path restarts). when the remaining distance on one axis is 0 and the other axis is being closed, the segment ends exactly on the base tile — `Math.min(Math.abs(rem), …)` guarantees no overshoot, and the loop continues until both are 0.
 
 - [ ] **Step 3: Vitest config** — `include: ['client/src/**/*.test.js', 'server/**/*.test.js', 'scripts/**/*.test.js']`.
 
