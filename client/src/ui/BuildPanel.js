@@ -1,5 +1,6 @@
 import { t } from '../i18n/i18n.js';
 import { TARGETING_MODES } from '../game/Tower.js';
+import { levelColor } from '../data/levelColors.js';
 
 const STAT_KEYS = ['damage', 'fireRate', 'range', 'tickInterval', 'freezeRadius', 'slow'];
 
@@ -70,8 +71,9 @@ export class BuildPanel {
     this.target = null;
   }
 
-  #header(title) {
-    return `<div class="panel-header"><h2>${title}</h2><button class="btn small" data-action="close">${t('build.close')}</button></div>`;
+  #header(title, swatch = null) {
+    const dot = swatch ? `<span class="level-swatch" style="background:${swatch}" title="${t('build.levelColor')}"></span>` : '';
+    return `<div class="panel-header"><h2>${dot}${title}</h2><button class="btn small" data-action="close">${t('build.close')}</button></div>`;
   }
 
   #renderBuild(gold) {
@@ -103,7 +105,7 @@ export class BuildPanel {
       .join('');
     const canUpgrade = tower.canUpgrade;
     const affordable = canUpgrade && gold >= tower.upgradeCost;
-    this.root.innerHTML = `${this.#header(t('build.towerTitle', { name: t(`tower.${tower.type}.name`), level: tower.level + 1 }))}
+    this.root.innerHTML = `${this.#header(t('build.towerTitle', { name: t(`tower.${tower.type}.name`), level: tower.level + 1 }), levelColor(tower.level))}
       <p class="tower-blurb">${t(`tower.${tower.type}.blurb`)}</p>
       <ul class="stats">${stats}</ul>
       ${tower.def.kind === 'projectile' ? this.#targetingRow(tower) : ''}

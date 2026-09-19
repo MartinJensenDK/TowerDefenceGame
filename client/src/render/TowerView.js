@@ -3,17 +3,29 @@ import { TILE_TOP } from './SceneManager.js';
 import { towerReach } from './RangeRing.js';
 import { OperatorAntics, THROW_RELEASE } from './OperatorAntics.js';
 import { FlagWave } from './FlagWave.js';
+import { levelColor } from '../data/levelColors.js';
 
 const FIRE_ANIM = 0.25;
 const SPIKE_ANIM = 0.4;
-const STARS_PER_ROW = 5;
+
+/**
+ * Parts painted in the level colour, together with the flag: the crossbow's bow limbs and fletching,
+ * the spikes, the cannon barrel and the frost operator's bucket. Names are matched after the glTF
+ * loader has stripped Blender's ".001" dots.
+ */
+const WEAPON_PARTS = {
+  crossbow: /^(Limb|LimbCap|Fletch)\d*$/,
+  spike: /^Spike\d*$/,
+  cannon: /^(Barrel|Breech|Cascabel)\d*$/,
+  frozen: /^Operator_Bucket\d*$/,
+};
 
 function lerpAngle(a, b, t) {
   const d = ((((b - a + Math.PI) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) - Math.PI;
   return a + d * t;
 }
 
-/** Visual for one placed tower: turret aiming, squash-and-stretch on fire, spikes, waving flag, level stars. */
+/** Visual for one placed tower: turret aiming, squash-and-stretch on fire, spikes, waving flag, level colour on flag and weapon. */
 export class TowerView {
   constructor(tower, models, scene, effects = null) {
     this.tower = tower;
@@ -44,27 +56,30 @@ export class TowerView {
       for (const clip of inst.clips) this.actions[clip.name] = this.mixer.clipAction(clip);
       this.actions.idle?.play();
     }
-    this.stars = new THREE.Group();
-    this.root.add(this.stars);
-    this.starGeo = new THREE.SphereGeometry(0.11, 8, 6);
-    this.starMat = new THREE.MeshToonMaterial({ color: 0xffd23f });
+    this.levelMaterials = this.#collectLevelMaterials();
     this.setLevel(tower.level);
     scene.add(this.root);
   }
 
-  /** One gold star per upgrade above the model, in rows of five so level 10 still fits over a tile. */
+  /** Private copies of the flag and weapon materials so each tower can wear its own level colour. */
+  #collectLevelMaterials() {
+    const weapon = WEAPON_PARTS[this.tower.type] ?? null;
+    const mats = [];
+    this.root.traverse((o) => {
+      if (!o.isMesh || Array.isArray(o.material)) return;
+      const isFlag = o.name === 'Flag';
+      if (!isFlag && !weapon?.test(o.name)) return;
+      // the flag's material was already cloned by FlagWave; clone everything else here
+      if (!(isFlag && this.flagWave)) o.material = o.material.clone();
+      mats.push(o.material);
+    });
+    return mats;
+  }
+
+  /** Paints the flag and the weapon in the colour of `level` (0-based). */
   setLevel(level) {
-    for (const c of [...this.stars.children]) this.stars.remove(c);
-    const top = new THREE.Box3().setFromObject(this.root).max.y - TILE_TOP + 0.35;
-    const rows = Math.ceil(level / STARS_PER_ROW);
-    for (let i = 0; i < level; i++) {
-      const row = Math.floor(i / STARS_PER_ROW);
-      const inRow = Math.min(STARS_PER_ROW, level - row * STARS_PER_ROW);
-      const col = i - row * STARS_PER_ROW;
-      const s = new THREE.Mesh(this.starGeo, this.starMat);
-      s.position.set((col - (inRow - 1) / 2) * 0.3, top + (rows - 1 - row) * 0.28, 0);
-      this.stars.add(s);
-    }
+    const color = levelColor(level);
+    for (const m of this.levelMaterials) m.color.set(color);
   }
 
   /** Frozen tower: the operator turns to the target and flings a bucket of cold water at it. */
@@ -122,7 +137,6 @@ export class TowerView {
       const lift = Math.sin(t * Math.PI) * 0.45;
       for (const s of this.spikes) s.mesh.position.y = s.baseY + lift;
     }
-    this.stars.rotation.y += dt * 1.5;
     this.antics?.update(dt);
     this.flagWave?.update(this.time);
   }
@@ -131,8 +145,9 @@ export class TowerView {
     this.antics?.dispose();
     this.flagWave?.dispose();
     this.scene.remove(this.root);
-    this.starGeo.dispose();
-    this.starMat.dispose();
+    for (const m of this.levelMaterials) {
+      if (m !== this.flagWave?.flag.material) m.dispose();
+    }
   }
 }
 

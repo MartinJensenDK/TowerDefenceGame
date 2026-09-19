@@ -50,6 +50,7 @@
   "build.towerTitle": "{name} (Level {level})",
   "build.upgrade": "Upgrade ({cost} gold)",
   "build.maxLevel": "Max level",
+  "build.levelColor": "Level colour (shown on the tower's flag and weapon)",
   "build.sell": "Sell (+{refund} gold)",
   "build.stat.damage": "Damage",
   "build.stat.fireRate": "Shots / s",

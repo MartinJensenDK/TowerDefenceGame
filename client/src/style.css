@@ -60,7 +60,8 @@ button { font: inherit; cursor: pointer; }
   max-height: calc(100vh - 8rem); overflow-y: auto;
 }
 .panel-header { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-.panel-header h2 { font-size: 1.05rem; }
+.panel-header h2 { font-size: 1.05rem; display: flex; align-items: center; gap: 0.4rem; }
+.level-swatch { display: inline-block; width: 0.85em; height: 0.85em; border-radius: 50%; border: 2px solid #2b1d0e; flex: none; }
 .tower-list { display: grid; gap: 0.5rem; }
 .tower-choice {
   display: grid; text-align: left; gap: 0.15rem; padding: 0.5rem 0.7rem;
