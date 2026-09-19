@@ -1,0 +1,48 @@
+{
+  "crossbow": {
+    "name": "Crossbow Tower",
+    "kind": "projectile",
+    "hitsFlying": true,
+    "hitsGround": true,
+    "projectile": "arrow",
+    "levels": [
+      { "cost": 50, "fireRate": 3.0, "damage": 6, "range": 7 },
+      { "cost": 40, "fireRate": 3.5, "damage": 8, "range": 8 },
+      { "cost": 60, "fireRate": 4.0, "damage": 11, "range": 9 }
+    ]
+  },
+  "spike": {
+    "name": "Spike Tower",
+    "kind": "area",
+    "hitsFlying": false,
+    "hitsGround": true,
+    "levels": [
+      { "cost": 80, "tickInterval": 0.5, "damage": 4, "range": 3.5 },
+      { "cost": 60, "tickInterval": 0.5, "damage": 6, "range": 4 },
+      { "cost": 90, "tickInterval": 0.5, "damage": 9, "range": 4.5 }
+    ]
+  },
+  "cannon": {
+    "name": "Cannon Tower",
+    "kind": "projectile",
+    "hitsFlying": true,
+    "hitsGround": true,
+    "projectile": "shell",
+    "levels": [
+      { "cost": 150, "fireRate": 0.5, "damage": 40, "range": 10, "splashRadius": 2.5, "splashFactor": 0.5 },
+      { "cost": 120, "fireRate": 0.6, "damage": 60, "range": 11, "splashRadius": 2.5, "splashFactor": 0.5 },
+      { "cost": 180, "fireRate": 0.7, "damage": 90, "range": 12, "splashRadius": 2.5, "splashFactor": 0.5 }
+    ]
+  },
+  "frozen": {
+    "name": "Frozen Ice Block",
+    "kind": "freeze",
+    "hitsFlying": false,
+    "hitsGround": true,
+    "levels": [
+      { "cost": 100, "freezeRadius": 1, "slow": 0.5 },
+      { "cost": 80, "freezeRadius": 2, "slow": 0.5 },
+      { "cost": 120, "freezeRadius": 3, "slow": 0.5 }
+    ]
+  }
+}
