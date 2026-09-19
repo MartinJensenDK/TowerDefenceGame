@@ -59,4 +59,20 @@ describe('validateMap', () => {
     waves[0] = { spawns: [{ type: 'scout', count: 1, interval: 1, path: 1 }] };
     expect(() => validateMap(makeTestMap({ waves }), enemies)).toThrow(/unknown path 1/);
   });
+
+  it('rejects an empty paths array', () => {
+    const map = makeTestMap({ paths: [] });
+    expect(() => validateMap(map, enemies)).toThrow(/at least one path required/);
+  });
+
+  it('rejects a spawn with invalid interval', () => {
+    const waves = makeTestMap().waves;
+    waves[0] = { spawns: [{ type: 'scout', count: 1, interval: 0 }] };
+    expect(() => validateMap(makeTestMap({ waves }), enemies)).toThrow(/invalid interval/);
+  });
+
+  it('rejects negative startGold', () => {
+    const map = makeTestMap({ startGold: -5 });
+    expect(() => validateMap(map, enemies)).toThrow(/startGold must be a non-negative number/);
+  });
 });
