@@ -68,7 +68,11 @@ export class GameSession {
         const view = this.towerViews.get(tower.id);
         if (!view) return;
         view.playFire();
-        if (target) this.effects.spawnProjectile({ from: view.muzzleWorldPosition(new THREE.Vector3()), target, kind: projectile });
+        if (projectile === 'spikes') {
+          this.effects.spikeBurst({ center: this.tmp.set(tower.x, TILE_TOP + 0.8, tower.z), range: tower.stats.range });
+        } else if (target) {
+          this.effects.spawnProjectile({ from: view.muzzleWorldPosition(new THREE.Vector3()), target, kind: projectile });
+        }
       }),
       game.on('tile:frozenChanged', ({ tiles }) => this.mapRenderer.setFrozen(tiles)),
     ];

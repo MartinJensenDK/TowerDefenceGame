@@ -12,6 +12,8 @@ export class Effects {
     this.arrowMat = new THREE.MeshToonMaterial({ color: 0x5a3a1a });
     this.shellGeo = new THREE.SphereGeometry(0.24, 10, 8);
     this.shellMat = new THREE.MeshToonMaterial({ color: 0x333333 });
+    this.spikeGeo = new THREE.ConeGeometry(0.09, 0.55, 6);
+    this.spikeMat = new THREE.MeshToonMaterial({ color: 0xb8bcc4 });
     this.tmp = new THREE.Vector3();
   }
 
@@ -60,6 +62,23 @@ export class Effects {
     this.items.push({ type: 'pop', sprite, t: 0, duration: 0.45 });
   }
 
+  /** Spike tower attack: a ring of spikes shoots out from `center` to the tower's range and sticks in the ground. */
+  spikeBurst({ center, range, count = 16 }) {
+    const jitter = Math.random() * Math.PI * 2;
+    for (let i = 0; i < count; i++) {
+      const a = jitter + (i / count) * Math.PI * 2;
+      const mesh = new THREE.Mesh(this.spikeGeo, this.spikeMat);
+      mesh.castShadow = true;
+      const start = center.clone();
+      const end = new THREE.Vector3(center.x + Math.cos(a) * range, 0.05, center.z + Math.sin(a) * range);
+      mesh.position.copy(start);
+      mesh.lookAt(end);
+      mesh.rotateX(Math.PI / 2);
+      this.scene.add(mesh);
+      this.items.push({ type: 'spike', mesh, start, end, t: 0, duration: 0.55 });
+    }
+  }
+
   deathBurst(position) {
     const tex = this.#texture('★', '#ffd23f');
     for (let i = 0; i < 6; i++) {
@@ -102,6 +121,15 @@ export class Effects {
           item.sprite.material.dispose();
           continue;
         }
+      } else if (item.type === 'spike') {
+        const f = Math.min(1, k / 0.6); // fly for the first 60 %, then stay stuck in the ground
+        item.mesh.position.lerpVectors(item.start, item.end, f);
+        item.mesh.position.y += Math.sin(f * Math.PI) * 0.45;
+        if (f >= 1) item.mesh.position.y -= (k - 0.6) * 0.5; // sink away
+        if (k >= 1) {
+          this.scene.remove(item.mesh);
+          continue;
+        }
       } else if (item.type === 'star') {
         item.vel.y -= 12 * dt;
         item.sprite.position.addScaledVector(item.vel, dt);
@@ -128,5 +156,7 @@ export class Effects {
     this.arrowMat.dispose();
     this.shellGeo.dispose();
     this.shellMat.dispose();
+    this.spikeGeo.dispose();
+    this.spikeMat.dispose();
   }
 }
