@@ -36,7 +36,7 @@ Committed maps: `vast` (green, "Vast Meadows") and `dunes` (desert, "Endless Dun
 - `TILE.CASTLE = 'C'` in `Grid.js`; `validateMap` accepts `C` and additionally requires: the 3×3 around the base is inside the map and contains only `C` or `R`.
 - `C` is not buildable, not road (`isBuildable` and `isRoad` need no change).
 - The four existing maps move the base one tile in from the edge where needed and mark the footprint:
-  - green: base `[14,2]`; row 2 becomes `............RRRC` → actually footprint (13..15, 1..3): (13,2) `R`, (14,2) `R`, rest `C`; path end `[14,2]`.
+  - green: base `[14,2]`; footprint (13..15, 1..3): (13,2) `R`, (14,2) `R`, rest `C`; path end `[14,2]`.
   - snow: base stays `[2,10]`; footprint (1..3, 9..11): (3,10) `R`, (2,10) `R`, rest `C`; path end unchanged.
   - desert: base `[14,4]`; footprint (13..15, 3..5): (13,4) `R`, (14,4) `R`, rest `C`; path end `[14,4]`.
   - water: base `[14,6]`; footprint (13..15, 5..7): (13,6) `R`, (14,6) `R`, rest `C` (the `W` at (14,7) becomes `C`); both paths end `[14,6]`.
