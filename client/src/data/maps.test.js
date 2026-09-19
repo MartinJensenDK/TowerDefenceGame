@@ -19,6 +19,13 @@ describe('shipped maps', () => {
     });
   }
 
+  it('vast has the mountain ridge on its north edge and a spiral road below it', () => {
+    const map = MAPS.vast;
+    expect(map.props).toEqual([{ model: 'decor_mountain', x: 35, y: 0, w: 30, h: 6 }]);
+    expect(map.tiles[0].slice(35, 65)).toBe('M'.repeat(30));
+    expect(map.paths[0].length).toBeGreaterThan(12);
+  });
+
   for (const [id, theme, pathCount] of [['vast', 'green', 1], ['dunes', 'desert', 3]]) {
     it(`${id} is a generated 100x100 map with ${pathCount} path(s)`, () => {
       const map = MAPS[id];

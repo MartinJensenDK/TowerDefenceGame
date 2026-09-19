@@ -50,6 +50,7 @@ export class MapRenderer {
     this.#buildTiles();
     this.#buildPebbles();
     this.#buildDecor();
+    this.#buildProps();
     this.#buildLandmarks();
     this.group.add(this.frozenGroup);
     scene.add(this.group);
@@ -187,6 +188,20 @@ export class MapRenderer {
         root.scale.setScalar(0.9 + rng() * 0.3);
         this.group.add(root);
       }
+    }
+  }
+
+  /** Big scenery from `map.props` (e.g. the mountain ridge): each model is stretched to its w x h tile footprint. */
+  #buildProps() {
+    for (const prop of this.map.props ?? []) {
+      const { root } = this.models.instantiate(prop.model);
+      const size = new THREE.Box3().setFromObject(root).getSize(new THREE.Vector3());
+      const targetW = prop.w * TILE_SIZE;
+      const targetD = prop.h * TILE_SIZE;
+      if (size.x > 0 && size.z > 0) root.scale.set(targetW / size.x, Math.min(targetW / size.x, targetD / size.z), targetD / size.z);
+      root.position.set((prop.x + prop.w / 2) * TILE_SIZE, TILE_TOP, (prop.y + prop.h / 2) * TILE_SIZE);
+      root.rotation.y = ((prop.rotation ?? 0) * Math.PI) / 180;
+      this.group.add(root);
     }
   }
 

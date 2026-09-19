@@ -28,6 +28,7 @@ All 21 models exist in `blender/troll-towers.blend` (one collection per model) a
 | `troll_wolfpack.glb` | Boss: big troll dragging a huge club, three leashed wolves in front | ~2.8 m tall, ~3.5 m wide |
 | `troll_giant.glb` | Final boss: the Troll King in royal plate with a tower shield and a glowing sword | ~5.5 m tall |
 | `decor_tree.glb`, `decor_rock.glb`, `decor_cactus.glb`, `decor_reed.glb` | Decoration | fits inside 2×2 m |
+| `decor_mountain.glb` | Mountain ridge on the north edge of Vast Meadows; listed in the map's `props` with its tile footprint and stretched to it | 60 × 12 m (30 × 6 tiles), ~17 m high, origin bottom centre |
 | `base_castle.glb` | The castle the trolls attack; fills 3×3 tiles | ≤ 6 m (3×3 tiles); shipped model ~5.6 m wide, ~6 m tall, gate on +Z |
 | `spawn_gate.glb` | Where trolls come out; spans 3 tiles across the road | ≤ 6 m wide (shipped ~5.9 m), ~4 m tall, 1 tile deep, opening faces +Z |
 

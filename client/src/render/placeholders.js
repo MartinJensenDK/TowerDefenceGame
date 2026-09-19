@@ -276,6 +276,20 @@ const BUILDERS = {
     return g;
   },
 
+  /** A 60 x 12 m mountain ridge (30 x 6 tiles) with snowy peaks; origin bottom centre. */
+  decor_mountain() {
+    const g = new THREE.Group();
+    const rock = toon(0x7d7f86);
+    const snow = toon(0xf4f7fb);
+    const peaks = [[-24, 9, 7], [-14, 13, 8], [-4, 16, 9], [6, 12, 8], [15, 15, 8], [24, 8, 6]];
+    for (const [x, h, r] of peaks) {
+      g.add(mesh(new THREE.ConeGeometry(r, h, 7), rock, { x, y: h / 2, z: (x % 3) * 0.6 }));
+      g.add(mesh(new THREE.ConeGeometry(r * 0.35, h * 0.32, 7), snow, { x, y: h - h * 0.16, z: (x % 3) * 0.6 }));
+    }
+    g.add(mesh(new THREE.BoxGeometry(60, 1.2, 12), toon(0x5f8f43), { y: 0.6 }));
+    return g;
+  },
+
   /** 3x3-tile castle (roughly 6 m across), origin bottom centre, gate on +Z. */
   base_castle() {
     const g = new THREE.Group();

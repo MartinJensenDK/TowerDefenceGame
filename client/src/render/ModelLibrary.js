@@ -8,7 +8,7 @@ export const MODEL_NAMES = [
   'troll_scout', 'troll_brute', 'troll_bat', 'troll_boss',
   'troll_archer', 'troll_knight', 'troll_wolfrider', 'troll_eaglerider',
   'troll_rhino', 'troll_wolfpack', 'troll_giant',
-  'decor_tree', 'decor_rock', 'decor_cactus', 'decor_reed',
+  'decor_tree', 'decor_rock', 'decor_cactus', 'decor_reed', 'decor_mountain',
   'base_castle', 'spawn_gate',
 ];
 

@@ -1,6 +1,6 @@
 export const TILE_SIZE = 2;
 
-export const TILE = { BUILDABLE: '.', ROAD: 'R', WATER: 'W', DECOR: 'D', CASTLE: 'C', GATE: 'G' };
+export const TILE = { BUILDABLE: '.', ROAD: 'R', WATER: 'W', DECOR: 'D', CASTLE: 'C', GATE: 'G', MOUNTAIN: 'M' };
 
 /** Tile map, tower occupancy, frozen-tile state and coordinate conversion. */
 export class Grid {

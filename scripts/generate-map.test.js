@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateMap } from './generate-map.mjs';
+import { generateMap, MOUNTAIN } from './generate-map.mjs';
 import { validateMap } from '../client/src/game/validateMap.js';
 import enemies from '../client/src/data/enemies.json';
 
@@ -81,7 +81,30 @@ describe('spiral layout', () => {
         expect(dir).not.toEqual([-prev[0], -prev[1]]);
       }
     }
-    expect(length).toBeGreaterThan(350);
+    expect(length).toBeGreaterThan(800); // tight rings: roughly twice the road of the old spiral
     expect(map.waves.every((w) => w.spawns.every((s) => (s.path ?? 0) === 0))).toBe(true);
+  });
+
+  it('brings parallel rings within one tower range of each other in several places', () => {
+    const map = generateMap({ ...opts, layout: 'spiral' });
+    // count rows where two horizontal road runs lie 4-6 tiles apart (a crossbow between them reaches both)
+    let close = 0;
+    for (let y = 0; y < map.height; y++) {
+      for (let dy = 4; dy <= 6; dy++) {
+        const a = map.tiles[y];
+        const b = map.tiles[y + dy];
+        if (a && b && /R{20,}/.test(a) && /R{20,}/.test(b)) close++;
+      }
+    }
+    expect(close).toBeGreaterThanOrEqual(3);
+  });
+
+  it('puts the 30x6 mountain on the north edge with the road below it', () => {
+    const map = generateMap({ ...opts, layout: 'spiral', mountain: true });
+    expect(validateMap(map, enemies)).toBe(true);
+    expect(map.props).toEqual([MOUNTAIN]);
+    for (let y = 0; y < 6; y++) expect(map.tiles[y].slice(35, 65)).toBe('M'.repeat(30));
+    expect(map.tiles.slice(0, 6).join('')).not.toContain('R');
+    expect(map.paths[0][0][1]).toBeGreaterThanOrEqual(8);
   });
 });

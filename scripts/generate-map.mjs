@@ -4,7 +4,10 @@
  *
  * Usage:
  *   node scripts/generate-map.mjs --id vast --name "Vast Meadows" --theme green --seed 7 \
- *     --description "A huge open valley with three long roads."
+ *     --layout spiral --mountain --description "A huge open valley with one enormously long road."
+ *
+ * --layout spiral: one road spiralling in from the west edge (default: three winding trails);
+ * --mountain: a 30x6 mountain ridge on the north edge (tiles 'M', see `props` in the map JSON).
  *
  * Writes client/src/data/maps/<id>.json. The same seed always produces the same map.
  */
@@ -107,15 +110,16 @@ function walkPath(rng, edge, base) {
 
 /**
  * One very long road: it enters from the west edge, runs round the map just inside the border,
- * spirals inward with random gaps between the rings and finally turns in to the castle.
+ * spirals inward with alternating tight (4-6 tiles) and wide (9-13 tiles) gaps between the rings and
+ * finally turns in to the castle. `top` is the first free row (rows above it may hold the mountain).
  * @returns {{points: number[][], tiles: Set<string>}}
  */
-function spiralPath(rng, base) {
+function spiralPath(rng, base, { top = 4 } = {}) {
   const [bx, by] = base;
   const tiles = new Set();
   const points = [];
   let x = 0;
-  let y = randInt(rng, 4, 7);
+  let y = randInt(rng, top, top + 3);
   points.push([x, y]);
   const legTo = (nx, ny) => {
     const dx = Math.sign(nx - x);
@@ -137,7 +141,9 @@ function spiralPath(rng, base) {
   const HEADINGS = ['E', 'S', 'W', 'N'];
   for (let leg = 0; leg < 60; leg++) {
     const heading = HEADINGS[leg % 4];
-    const gap = randInt(rng, 12, 20);
+    // rings alternate between hugging the previous one (a tower between them reaches both roads)
+    // and standing well apart, so the map has plenty of double-coverage spots without being a grid
+    const gap = rng() < 0.55 ? randInt(rng, 4, 6) : randInt(rng, 9, 13);
     // the box after this leg's shrink must still hold the castle with room to spare, else turn in
     const next = heading === 'E' ? [xlo, xhi, ylo + gap, yhi] : heading === 'S' ? [xlo, xhi - gap, ylo, yhi]
       : heading === 'W' ? [xlo, xhi, ylo, yhi - gap] : [xlo + gap, xhi, ylo, yhi];
@@ -162,6 +168,8 @@ function pickEdges(rng) {
   return out;
 }
 
+const here = () => path.dirname(fileURLToPath(import.meta.url));
+
 /** The shared 50-wave table with 1.5x as many walkers, riders and flyers, dealt across the paths. */
 function waves(pathCount) {
   return generateWaveTable({ pathCount, scale: 1.5 });
@@ -170,17 +178,21 @@ function waves(pathCount) {
 /**
  * Builds a 100x100 map: `trails` (default) has three winding roads meeting at a castle near the middle,
  * `spiral` has one very long road that circles the map before turning in to the castle.
- * @param {{seed: number, id: string, name: string, theme: string, description?: string, layout?: 'trails'|'spiral'}} opts
+ * @param {{seed: number, id: string, name: string, theme: string, description?: string, layout?: 'trails'|'spiral', mountain?: boolean}} opts
+ *   mountain: put the 30x6 mountain ridge on the north edge (the spiral's first ring then starts below it)
  * @returns {object} map definition, ready for validateMap
  */
-export function generateMap({ seed, id, name, theme, description = '', layout = 'trails' }) {
+/** The mountain ridge on the north edge: 30 x 6 tiles, centred. Tiles under it become 'M' (unbuildable). */
+export const MOUNTAIN = { model: 'decor_mountain', x: 35, y: 0, w: 30, h: 6 };
+
+export function generateMap({ seed, id, name, theme, description = '', layout = 'trails', mountain = false }) {
   const rng = makeRng(seed);
   const base = [randInt(rng, 35, 64), randInt(rng, 35, 64)];
   const grid = Array.from({ length: SIZE }, () => Array(SIZE).fill('.'));
   const road = new Set();
   const paths = [];
   if (layout === 'spiral') {
-    const p = spiralPath(rng, base);
+    const p = spiralPath(rng, base, { top: mountain ? MOUNTAIN.y + MOUNTAIN.h + 2 : 4 });
     paths.push(p.points);
     for (const k of p.tiles) road.add(k);
   } else {
@@ -198,6 +210,16 @@ export function generateMap({ seed, id, name, theme, description = '', layout = 
   }
   const [bx, by] = base;
   for (let y = by - 1; y <= by + 1; y++) for (let x = bx - 1; x <= bx + 1; x++) if (grid[y][x] !== 'R') grid[y][x] = 'C';
+  const props = [];
+  if (mountain) {
+    props.push({ ...MOUNTAIN });
+    for (let y = MOUNTAIN.y; y < MOUNTAIN.y + MOUNTAIN.h; y++) {
+      for (let x = MOUNTAIN.x; x < MOUNTAIN.x + MOUNTAIN.w; x++) {
+        if (grid[y][x] === 'R') throw new Error(`seed ${seed}: the road runs under the mountain at ${x},${y}`);
+        grid[y][x] = 'M';
+      }
+    }
+  }
   // the spawn gate is three tiles wide: the tiles beside each spawn (across the road) cannot be built on
   for (const [[sx, sy], [nx, ny]] of paths) {
     const flanks = ny === sy ? [[sx, sy - 1], [sx, sy + 1]] : [[sx - 1, sy], [sx + 1, sy]];
@@ -241,6 +263,7 @@ export function generateMap({ seed, id, name, theme, description = '', layout = 
     tiles: grid.map((row) => row.join('')),
     paths,
     base,
+    ...(props.length ? { props } : {}),
     startGold: 400,
     modifiers: { frostBonus: 1.0, waveInterval: 45 },
     waves: waves(paths.length),
@@ -269,7 +292,7 @@ function cli() {
       process.exit(1);
     }
   }
-  const map = generateMap({ ...args, seed: Number(args.seed) });
+  const map = generateMap({ ...args, seed: Number(args.seed), mountain: process.argv.includes('--mountain') });
   const out = path.join(here(), '../client/src/data/maps', `${map.id}.json`);
   writeFileSync(out, JSON.stringify(map, null, 1) + '\n');
   console.log(`wrote ${out}: base ${map.base}, paths ${map.paths.map((p) => p.length).join('/')} waypoints`);

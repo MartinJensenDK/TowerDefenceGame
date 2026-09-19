@@ -1,6 +1,6 @@
 import { WAVE_COUNT } from './waveTable.js';
 
-const TILE_CHARS = '.RWDCG';
+const TILE_CHARS = '.RWDCGM';
 const REQUIRED = ['id', 'name', 'theme', 'width', 'height', 'tiles', 'paths', 'base', 'waves', 'startGold'];
 
 /**
@@ -73,6 +73,15 @@ export function validateMap(map, enemyDefs) {
       if (!map.paths[p]) fail(`wave ${i + 1} uses unknown path ${p}`);
     }
   });
+
+  if (map.props !== undefined) {
+    if (!Array.isArray(map.props)) fail('props must be an array');
+    map.props.forEach((p, i) => {
+      if (!p || typeof p.model !== 'string') fail(`prop ${i} needs a model name`);
+      for (const k of ['x', 'y', 'w', 'h']) if (!Number.isInteger(p[k]) || (k === 'w' || k === 'h' ? p[k] < 1 : p[k] < 0)) fail(`prop ${i} has invalid ${k}`);
+      if (p.x + p.w > map.width || p.y + p.h > map.height) fail(`prop ${i} leaves the map`);
+    });
+  }
 
   if (!(map.startGold >= 0)) fail('startGold must be a non-negative number');
   return true;

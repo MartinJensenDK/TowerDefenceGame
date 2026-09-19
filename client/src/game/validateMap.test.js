@@ -80,6 +80,13 @@ describe('validateMap', () => {
     expect(() => validateMap(makeTestMap({ waves }), enemies)).toThrow(/invalid interval/);
   });
 
+  it('accepts mountain tiles and props that fit on the map', () => {
+    const map = makeTestMap({ tiles: ['MM..CCC', 'RRRRRRC', '....CCC'], props: [{ model: 'decor_mountain', x: 0, y: 0, w: 2, h: 1 }] });
+    expect(validateMap(map, enemies)).toBe(true);
+    expect(() => validateMap(makeTestMap({ props: [{ model: 'decor_mountain', x: 6, y: 0, w: 2, h: 1 }] }), enemies)).toThrow(/prop 0 leaves the map/);
+    expect(() => validateMap(makeTestMap({ props: [{ x: 0, y: 0, w: 1, h: 1 }] }), enemies)).toThrow(/needs a model name/);
+  });
+
   it('rejects negative startGold', () => {
     const map = makeTestMap({ startGold: -5 });
     expect(() => validateMap(map, enemies)).toThrow(/startGold must be a non-negative number/);
