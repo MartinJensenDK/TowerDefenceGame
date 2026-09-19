@@ -21,7 +21,7 @@ All 14 models exist in `blender/troll-towers.blend` (one collection per model) a
 | `troll_bat.glb` | Bat troll (flying) | ~0.8 m, hovering ~1.2 m above ground |
 | `troll_boss.glb` | Boss troll | ~3 m tall |
 | `decor_tree.glb`, `decor_rock.glb`, `decor_cactus.glb`, `decor_reed.glb` | Decoration | fits inside 2×2 m |
-| `base_castle.glb` | The base the trolls attack | ~1.6 m wide |
+| `base_castle.glb` | The castle the trolls attack; fills 3×3 tiles | ~6 m wide, ~6 m tall, gate on +Z |
 | `spawn_gate.glb` | Where trolls come out | ~2 m wide, opening faces +Z |
 
 ## Scale and origin
@@ -35,6 +35,8 @@ All 14 models exist in `blender/troll-towers.blend` (one collection per model) a
 - `Spike` – any number of meshes named `Spike`, `Spike.001`, `Spike.002`, … (Blender numbering is fine; the loader strips the dot, which the game also accepts) rise 0.45 m when the spike tower ticks.
 - `WingL` / `WingR` – flap on flying trolls.
 - `Operator` – the little troll on the tower (purely cosmetic).
+- `Flag` – on the castle: a subdivided plane whose pole edge is at local x = 0 and whose cloth extends along +X. The game waves it in the wind by displacing vertices, so the more subdivisions the smoother (16×8 is used).
+- `Princess` – the princess troll on the castle balcony (purely cosmetic).
 
 ## Animations (optional)
 Clips named `idle`, `shoot`, `walk`, `die` are picked up if present. Without them the game uses its own squash-and-stretch.
