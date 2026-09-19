@@ -83,12 +83,14 @@ export class GameScreen {
       this.selectedTower = tower;
       this.selectedTile = null;
       this.session.hideGhost();
+      this.session.clearHighlight();
       this.panel.showTower(tower, this.game.economy.gold);
       return;
     }
     if (this.game.grid.isBuildable(tile.x, tile.y)) {
       this.selectedTile = tile;
       this.selectedTower = null;
+      this.session.highlightTile(tile);
       this.panel.showBuild(tile, this.game.economy.gold);
       if (this.previewType) this.session.showGhost(this.previewType, tile);
       return;
@@ -99,6 +101,7 @@ export class GameScreen {
   closePanel() {
     this.panel.hide();
     this.session.hideGhost();
+    this.session.clearHighlight();
     this.selectedTile = null;
     this.selectedTower = null;
     this.previewType = null;

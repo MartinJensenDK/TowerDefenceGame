@@ -3,6 +3,7 @@ import { MapRenderer } from './MapRenderer.js';
 import { CameraRig } from './CameraRig.js';
 import { Effects } from './Effects.js';
 import { PathPreview } from './PathPreview.js';
+import { TileHighlight } from './TileHighlight.js';
 import { EnemyView } from './EnemyView.js';
 import { TowerView, makeGhost } from './TowerView.js';
 import { TILE_TOP } from './SceneManager.js';
@@ -27,6 +28,7 @@ export class GameSession {
     this.effects = new Effects(this.scene);
     this.pathPreview = new PathPreview({ scene: this.scene, paths: game.map.paths.map((_, i) => game.grid.pathToWorld(i)) });
     this.pathPreview.setVisible(game.wave === 0);
+    this.tileHighlight = new TileHighlight(this.scene);
     this.enemyViews = new Map();
     this.towerViews = new Map();
     this.dyingViews = [];
@@ -95,6 +97,7 @@ export class GameSession {
     this.effects.update(dt * this.speed);
     this.mapRenderer.update(dt);
     this.pathPreview.update(dt);
+    this.tileHighlight.update(dt);
     this.cameraRig.update();
   }
 
@@ -118,6 +121,16 @@ export class GameSession {
     this.ghost.setOk(this.game.grid.isBuildable(tile.x, tile.y) && affordable);
   }
 
+  /** Marks the tile the player selected for building with a blue frame. */
+  highlightTile(tile) {
+    const w = this.game.grid.tileToWorld(tile.x, tile.y);
+    this.tileHighlight.show(w.x, w.z);
+  }
+
+  clearHighlight() {
+    this.tileHighlight.hide();
+  }
+
   hideGhost() {
     if (!this.ghost) return;
     this.scene.remove(this.ghost.root);
@@ -128,6 +141,7 @@ export class GameSession {
   dispose() {
     for (const off of this.unsubscribe) off();
     this.hideGhost();
+    this.tileHighlight.dispose();
     for (const v of this.enemyViews.values()) v.dispose();
     for (const v of this.dyingViews) v.dispose();
     for (const v of this.towerViews.values()) v.dispose();
