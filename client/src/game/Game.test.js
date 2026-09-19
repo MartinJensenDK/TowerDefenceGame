@@ -190,7 +190,7 @@ describe('Game waves', () => {
     const g = makeGame({ waves: makeTestMap().waves.map(() => ({ spawns: [{ type: 'brute', count: 3, interval: 0.2 }] })) });
     const hits = vi.fn();
     g.on('enemy:hit', hits);
-    g.buildTower('cannon', 5, 0);
+    g.buildTower('cannon', 3, 0);
     g.buildTower('spike', 0, 0);
     g.startNextWave();
     // The cannon's first shot (fireRate 0.5 => 2s cooldown) always lands on the lone

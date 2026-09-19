@@ -3,6 +3,9 @@ import { validateMap } from './validateMap.js';
 import { makeTestMap } from './testMap.js';
 import enemies from '../data/enemies.json';
 import green from '../data/maps/green.json';
+import snow from '../data/maps/snow.json';
+import desert from '../data/maps/desert.json';
+import water from '../data/maps/water.json';
 
 describe('validateMap', () => {
   it('accepts the test map and the green map', () => {
@@ -10,8 +13,14 @@ describe('validateMap', () => {
     expect(validateMap(green, enemies)).toBe(true);
   });
 
+  it('accepts all four shipped maps', () => {
+    for (const map of [green, snow, desert, water]) {
+      expect(validateMap(map, enemies)).toBe(true);
+    }
+  });
+
   it('rejects a path that leaves the road', () => {
-    const map = makeTestMap({ tiles: ['......', 'RRR.RR', '......'] });
+    const map = makeTestMap({ tiles: ['....CCC', 'RRR.RRC', '....CCC'] });
     expect(() => validateMap(map, enemies)).toThrow(/non-road tile at 3,1/);
   });
 
@@ -26,7 +35,7 @@ describe('validateMap', () => {
   });
 
   it('rejects diagonal segments', () => {
-    const map = makeTestMap({ tiles: ['R.....', 'RRRRRR', '......'], paths: [[[0, 0], [5, 1]]] });
+    const map = makeTestMap({ tiles: ['R...CCC', 'RRRRRRC', '....CCC'], paths: [[[0, 0], [5, 1]]] });
     expect(() => validateMap(map, enemies)).toThrow(/axis-aligned/);
   });
 
@@ -51,7 +60,7 @@ describe('validateMap', () => {
 
   it('rejects wrong row lengths and bad tile characters', () => {
     expect(() => validateMap(makeTestMap({ tiles: ['.....', 'RRRRRR', '......'] }), enemies)).toThrow(/row 0/);
-    expect(() => validateMap(makeTestMap({ tiles: ['...X..', 'RRRRRR', '......'] }), enemies)).toThrow(/invalid tile 'X'/);
+    expect(() => validateMap(makeTestMap({ tiles: ['...X...', 'RRRRRRR', '.......'] }), enemies)).toThrow(/invalid tile 'X'/);
   });
 
   it('rejects spawns that reference a missing path', () => {
@@ -74,5 +83,39 @@ describe('validateMap', () => {
   it('rejects negative startGold', () => {
     const map = makeTestMap({ startGold: -5 });
     expect(() => validateMap(map, enemies)).toThrow(/startGold must be a non-negative number/);
+  });
+});
+
+describe('castle footprint', () => {
+  it('accepts C tiles around the base', () => {
+    const map = makeTestMap({
+      width: 7,
+      height: 3,
+      tiles: ['....CCC', 'RRRRRRC', '....CCC'],
+      paths: [[[0, 1], [5, 1]]],
+      base: [5, 1],
+    });
+    expect(validateMap(map, enemies)).toBe(true);
+  });
+
+  it('rejects a buildable tile inside the footprint', () => {
+    const map = makeTestMap({
+      width: 7,
+      height: 3,
+      tiles: ['....C.C', 'RRRRRRC', '....CCC'],
+      paths: [[[0, 1], [5, 1]]],
+      base: [5, 1],
+    });
+    expect(() => validateMap(map, enemies)).toThrow(/footprint/);
+  });
+
+  it('rejects a base whose footprint leaves the map', () => {
+    // Base sits on the map's last column, so its 3x3 footprint spills past the east edge.
+    const map = makeTestMap({
+      tiles: ['....CCC', 'RRRRRRR', '....CCC'],
+      base: [6, 1],
+      paths: [[[0, 1], [6, 1]]],
+    });
+    expect(() => validateMap(map, enemies)).toThrow(/footprint/);
   });
 });

@@ -1,4 +1,4 @@
-const TILE_CHARS = '.RWD';
+const TILE_CHARS = '.RWDC';
 const REQUIRED = ['id', 'name', 'theme', 'width', 'height', 'tiles', 'paths', 'base', 'waves', 'startGold'];
 
 /**
@@ -25,6 +25,14 @@ export function validateMap(map, enemyDefs) {
 
   const [bx, by] = map.base;
   if (!inBounds(bx, by) || tile(bx, by) !== 'R') fail('base must be on a road tile');
+
+  for (let y = by - 1; y <= by + 1; y++) {
+    for (let x = bx - 1; x <= bx + 1; x++) {
+      if (!inBounds(x, y)) fail('castle footprint (3x3 around base) leaves the map');
+      const c = tile(x, y);
+      if (c !== 'C' && c !== 'R') fail(`castle footprint tile ${x},${y} must be C or R`);
+    }
+  }
 
   if (!Array.isArray(map.paths) || map.paths.length === 0) fail('at least one path required');
   map.paths.forEach((path, i) => {

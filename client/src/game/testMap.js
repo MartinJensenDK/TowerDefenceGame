@@ -4,9 +4,9 @@ export function makeTestMap(overrides = {}) {
     id: 'test',
     name: 'Test Map',
     theme: 'green',
-    width: 6,
+    width: 7,
     height: 3,
-    tiles: ['......', 'RRRRRR', '......'],
+    tiles: ['....CCC', 'RRRRRRC', '....CCC'],
     paths: [[[0, 1], [5, 1]]],
     base: [5, 1],
     waves: Array.from({ length: 20 }, () => ({

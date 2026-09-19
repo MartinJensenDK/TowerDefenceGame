@@ -16,7 +16,7 @@ describe('Grid', () => {
     const g = new Grid(makeTestMap());
     expect(g.tileAt(0, 1)).toBe('R');
     expect(g.tileAt(0, 0)).toBe('.');
-    expect(g.tileAt(6, 0)).toBeNull();
+    expect(g.tileAt(7, 0)).toBeNull();
     expect(g.isRoad(2, 1)).toBe(true);
     expect(g.isBuildable(2, 0)).toBe(true);
     expect(g.isBuildable(2, 1)).toBe(false);
