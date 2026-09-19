@@ -74,6 +74,10 @@ button { font: inherit; cursor: pointer; }
 .stats { list-style: none; padding: 0; margin: 0.5rem 0; display: grid; gap: 0.25rem; }
 .stats li { display: flex; justify-content: space-between; border-bottom: 2px dashed rgba(43, 29, 14, 0.2); padding: 0.15rem 0; }
 .panel-actions { display: grid; gap: 0.5rem; margin-top: 0.5rem; }
+.targeting { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0.5rem 0 0.25rem; }
+.targeting .label { font-weight: 700; }
+.segmented { display: flex; gap: 0.25rem; }
+.segmented .btn { padding: 0.25rem 0.5rem; }
 
 #menu, #dialog {
   pointer-events: auto;

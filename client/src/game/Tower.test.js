@@ -42,12 +42,33 @@ describe('Tower economics', () => {
 });
 
 describe('Tower targeting', () => {
-  it('picks the enemy closest to the base within range', () => {
+  it('picks the enemy closest to the tower within range by default', () => {
     const t = tower('crossbow'); // at world (5,1), range 7
-    const far = enemyAt('scout', 1); // distance to base 10
-    const near = enemyAt('scout', 6); // distance to base 5
+    const far = enemyAt('scout', 1); // 4 units from the tower
+    const near = enemyAt('scout', 6); // 1 unit from the tower
     const outOfRange = enemyAt('scout', 13); // 8 units away
+    expect(t.targeting).toBe('closest');
     expect(t.pickTarget([far, near, outOfRange])).toBe(near);
+  });
+
+  it('can prefer the weakest or the strongest enemy in range', () => {
+    const t = tower('crossbow');
+    const scout = enemyAt('scout', 6); // 30 hp
+    const brute = enemyAt('brute', 2); // 160 hp
+    expect(t.setTargeting('weakest')).toBe(true);
+    expect(t.pickTarget([brute, scout])).toBe(scout);
+    t.setTargeting('strongest');
+    expect(t.pickTarget([scout, brute])).toBe(brute);
+    expect(t.setTargeting('nonsense')).toBe(false);
+    expect(t.targeting).toBe('strongest');
+  });
+
+  it('breaks ties towards the enemy nearest the base', () => {
+    const t = tower('crossbow');
+    t.setTargeting('weakest');
+    const behind = enemyAt('scout', 4); // both 30 hp
+    const ahead = enemyAt('scout', 6);
+    expect(t.pickTarget([behind, ahead])).toBe(ahead);
   });
 
   it('ignores dead enemies and enemies that reached the base', () => {

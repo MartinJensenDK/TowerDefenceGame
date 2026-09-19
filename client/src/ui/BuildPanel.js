@@ -1,4 +1,5 @@
 import { t } from '../i18n/i18n.js';
+import { TARGETING_MODES } from '../game/Tower.js';
 
 const STAT_KEYS = ['damage', 'fireRate', 'range', 'tickInterval', 'freezeRadius', 'slow'];
 
@@ -18,6 +19,7 @@ export class BuildPanel {
     this.onBuild = null;
     this.onUpgrade = null;
     this.onSell = null;
+    this.onTargeting = null;
     this.onClose = null;
     this.target = null; // { kind:'build', tile } | { kind:'tower', tower }
   }
@@ -104,6 +106,7 @@ export class BuildPanel {
     this.root.innerHTML = `${this.#header(t('build.towerTitle', { name: t(`tower.${tower.type}.name`), level: tower.level + 1 }))}
       <p class="tower-blurb">${t(`tower.${tower.type}.blurb`)}</p>
       <ul class="stats">${stats}</ul>
+      ${tower.def.kind === 'projectile' ? this.#targetingRow(tower) : ''}
       <div class="panel-actions">
         <button class="btn primary" data-action="upgrade" ${affordable ? '' : 'disabled'}>${canUpgrade ? t('build.upgrade', { cost: tower.upgradeCost }) : t('build.maxLevel')}</button>
         <button class="btn danger" data-action="sell">${t('build.sell', { refund: tower.sellRefund })}</button>
@@ -111,6 +114,27 @@ export class BuildPanel {
     this.#bindCommon();
     this.root.querySelector('[data-action="upgrade"]').addEventListener('click', () => this.onUpgrade?.());
     this.root.querySelector('[data-action="sell"]').addEventListener('click', () => this.onSell?.());
+    for (const btn of this.root.querySelectorAll('[data-targeting]')) {
+      btn.addEventListener('click', () => {
+        this.onTargeting?.(btn.dataset.targeting);
+        this.#refreshTargeting();
+      });
+    }
+  }
+
+  #targetingRow(tower) {
+    const buttons = TARGETING_MODES.map(
+      (mode) => `<button class="btn small toggle" data-targeting="${mode}" aria-pressed="${tower.targeting === mode}">${t(`build.targeting.${mode}`)}</button>`,
+    ).join('');
+    return `<div class="targeting"><span class="label">${t('build.targeting.label')}</span><div class="segmented">${buttons}</div></div>`;
+  }
+
+  #refreshTargeting() {
+    const { tower } = this.target ?? {};
+    if (!tower) return;
+    for (const btn of this.root.querySelectorAll('[data-targeting]')) {
+      btn.setAttribute('aria-pressed', String(btn.dataset.targeting === tower.targeting));
+    }
   }
 
   #bindCommon() {

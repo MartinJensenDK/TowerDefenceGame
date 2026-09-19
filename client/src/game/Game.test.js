@@ -142,8 +142,9 @@ describe('Game waves', () => {
     expect(g.wave).toBe(2);
     run(g, 6);
     expect(ended).toHaveBeenCalledTimes(2);
-    expect(ended.mock.calls[0][0]).toMatchObject({ wave: 1, early: false, bonusScore: 50 });
-    expect(ended.mock.calls[1][0]).toMatchObject({ wave: 2, early: true, bonusScore: 110 });
+    const byWave = Object.fromEntries(ended.mock.calls.map(([p]) => [p.wave, p]));
+    expect(byWave[1]).toMatchObject({ wave: 1, early: false, bonusScore: 50 });
+    expect(byWave[2]).toMatchObject({ wave: 2, early: true, bonusScore: 110 });
   });
 
   it('auto-starts the next wave after the countdown when enabled', () => {
@@ -263,5 +264,19 @@ describe('interval waves', () => {
     run(g, 12);
     expect(g.wave).toBe(20);
     expect(g.waveTimer).toBeNull();
+  });
+});
+
+describe('Game targeting', () => {
+  it('sets a tower targeting mode and rejects bad input', () => {
+    const g = makeGame();
+    const { tower } = g.buildTower('crossbow', 2, 0);
+    const changed = vi.fn();
+    g.on('tower:targetingChanged', changed);
+    expect(g.setTargeting(tower.id, 'weakest')).toEqual({ ok: true, tower });
+    expect(tower.targeting).toBe('weakest');
+    expect(changed).toHaveBeenCalledWith({ tower, mode: 'weakest' });
+    expect(g.setTargeting(tower.id, 'nope')).toEqual({ ok: false, error: 'badMode' });
+    expect(g.setTargeting(999, 'closest')).toEqual({ ok: false, error: 'noTower' });
   });
 });

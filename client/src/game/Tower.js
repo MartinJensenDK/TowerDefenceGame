@@ -1,6 +1,7 @@
 let nextId = 1;
 
 export const SELL_FACTOR = 0.7;
+export const TARGETING_MODES = ['closest', 'weakest', 'strongest'];
 
 /** A placed tower. Handles targeting, cooldowns and level math. Damage is applied by Game. */
 export class Tower {
@@ -17,6 +18,18 @@ export class Tower {
     this.cooldown = 0;
     this.facing = 0;
     this.targetId = null;
+    this.targeting = 'closest';
+  }
+
+  /** Targeting modes a player can pick: closest to the tower, lowest hp, highest hp. */
+  static get TARGETING_MODES() {
+    return TARGETING_MODES;
+  }
+
+  setTargeting(mode) {
+    if (!TARGETING_MODES.includes(mode)) return false;
+    this.targeting = mode;
+    return true;
   }
 
   get stats() {
@@ -65,11 +78,25 @@ export class Tower {
     return enemies.filter((e) => this.canTarget(e) && this.inRange(e));
   }
 
-  /** "First" targeting: the enemy in range that is closest to the base. */
+  /**
+   * Picks the enemy in range according to the tower's targeting mode:
+   * closest (to the tower), weakest (lowest hp) or strongest (highest hp).
+   * Ties go to the enemy nearest the base so the front runner is preferred.
+   */
   pickTarget(enemies) {
+    const score = (e) => {
+      if (this.targeting === 'weakest') return e.hp;
+      if (this.targeting === 'strongest') return -e.hp;
+      return this.distanceTo(e);
+    };
     let best = null;
+    let bestScore = Infinity;
     for (const e of this.enemiesInRange(enemies)) {
-      if (!best || e.distanceToBase < best.distanceToBase) best = e;
+      const sc = score(e);
+      if (!best || sc < bestScore || (sc === bestScore && e.distanceToBase < best.distanceToBase)) {
+        best = e;
+        bestScore = sc;
+      }
     }
     return best;
   }

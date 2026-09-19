@@ -146,6 +146,15 @@ export class Game extends Emitter {
     return { ok: true, tower };
   }
 
+  /** Changes how a tower picks its target: 'closest', 'weakest' or 'strongest'. */
+  setTargeting(id, mode) {
+    const tower = this.towers.find((t) => t.id === id);
+    if (!tower) return { ok: false, error: 'noTower' };
+    if (!tower.setTargeting(mode)) return { ok: false, error: 'badMode' };
+    this.emit('tower:targetingChanged', { tower, mode });
+    return { ok: true, tower };
+  }
+
   upgradeTower(id) {
     if (this.isOver) return { ok: false, error: 'gameOver' };
     const tower = this.towers.find((t) => t.id === id);

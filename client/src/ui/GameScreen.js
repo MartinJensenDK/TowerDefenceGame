@@ -56,6 +56,9 @@ export class GameScreen {
       }
       else if (r.error === 'notEnoughGold') this.hud.toast(t('build.tooExpensive'));
     };
+    this.panel.onTargeting = (mode) => {
+      if (this.selectedTower) this.game.setTargeting(this.selectedTower.id, mode);
+    };
     this.panel.onSell = () => {
       if (!this.selectedTower) return;
       this.game.sellTower(this.selectedTower.id);

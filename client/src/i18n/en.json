@@ -58,6 +58,10 @@
   "build.stat.freezeRadius": "Freeze reach",
   "build.stat.slow": "Slow",
   "build.close": "Close",
+  "build.targeting.label": "Target",
+  "build.targeting.closest": "Closest",
+  "build.targeting.weakest": "Weakest",
+  "build.targeting.strongest": "Strongest",
 
   "tower.crossbow.name": "Crossbow Tower",
   "tower.crossbow.blurb": "Fast, weak arrows. Hits flying trolls.",
