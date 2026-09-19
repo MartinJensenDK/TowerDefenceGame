@@ -9,12 +9,12 @@ export class SceneManager {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 300);
-    this.clock = new THREE.Clock(false);
+    this.timer = new THREE.Timer();
     this.onFrame = null;
 
     this.hemi = new THREE.HemisphereLight(0xffffff, 0x88aa66, 0.9);
@@ -51,9 +51,9 @@ export class SceneManager {
   }
 
   start() {
-    this.clock.start();
     this.renderer.setAnimationLoop(() => {
-      const dt = Math.min(this.clock.getDelta(), 0.1);
+      this.timer.update();
+      const dt = Math.min(this.timer.getDelta(), 0.1);
       this.onFrame?.(dt);
       this.renderer.render(this.scene, this.camera);
     });
@@ -61,7 +61,6 @@ export class SceneManager {
 
   stop() {
     this.renderer.setAnimationLoop(null);
-    this.clock.stop();
   }
 
   dispose() {
