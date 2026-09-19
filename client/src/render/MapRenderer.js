@@ -38,6 +38,8 @@ export class MapRenderer {
     this.group.name = 'map';
     this.frozenGroup = new THREE.Group();
     this.groundMeshes = [];
+    this.ownedGeometries = [];
+    this.ownedMaterials = [];
     this.time = 0;
     this.frozenMaterial = new THREE.MeshToonMaterial({ color: 0x9fdcff, transparent: true, opacity: 0.55, depthWrite: false });
     this.frozenGeometry = new THREE.PlaneGeometry(TILE_SIZE * 0.96, TILE_SIZE * 0.96);
@@ -70,6 +72,8 @@ export class MapRenderer {
       road: new THREE.MeshToonMaterial({ color: this.theme.road }),
       water: new THREE.MeshToonMaterial({ color: this.theme.water, transparent: true, opacity: 0.9 }),
     };
+    this.ownedGeometries.push(box);
+    this.ownedMaterials.push(mats.g0, mats.g1, mats.road, mats.water);
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const type = tiles[y][x];
@@ -94,10 +98,11 @@ export class MapRenderer {
         this.groundMeshes.push(m);
       }
     }
-    const slab = new THREE.Mesh(
-      new THREE.BoxGeometry(width * TILE_SIZE + 1.5, 1.6, height * TILE_SIZE + 1.5),
-      new THREE.MeshToonMaterial({ color: new THREE.Color(this.theme.ground[1]).multiplyScalar(0.55) }),
-    );
+    const slabGeometry = new THREE.BoxGeometry(width * TILE_SIZE + 1.5, 1.6, height * TILE_SIZE + 1.5);
+    const slabMaterial = new THREE.MeshToonMaterial({ color: new THREE.Color(this.theme.ground[1]).multiplyScalar(0.55) });
+    this.ownedGeometries.push(slabGeometry);
+    this.ownedMaterials.push(slabMaterial);
+    const slab = new THREE.Mesh(slabGeometry, slabMaterial);
     slab.position.set(this.centerX, -TILE_THICKNESS - 0.8, this.centerZ);
     slab.receiveShadow = true;
     this.group.add(slab);
@@ -166,13 +171,8 @@ export class MapRenderer {
 
   dispose() {
     this.scene.remove(this.group);
-    this.group.traverse((o) => {
-      if (o.isMesh) {
-        o.geometry?.dispose?.();
-        const mats = Array.isArray(o.material) ? o.material : [o.material];
-        for (const m of mats) m?.dispose?.();
-      }
-    });
+    for (const g of this.ownedGeometries) g.dispose();
+    for (const m of this.ownedMaterials) m.dispose();
     this.frozenGeometry.dispose();
     this.frozenMaterial.dispose();
   }
