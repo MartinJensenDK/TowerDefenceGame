@@ -36,6 +36,7 @@ Image textures on the Base Color input are exported inside the `.glb` and the ga
 - `Turret` – a child object that rotates toward the target (crossbow, cannon). If missing, the whole model rotates.
 - `Muzzle` – an Empty inside `Turret` where projectiles start. If missing, projectiles start 1.2 m above the turret origin.
 - `Spike` – any number of meshes named `Spike`, `Spike.001`, `Spike.002`, … (Blender numbering is fine; the loader strips the dot, which the game also accepts) rise 0.45 m when the spike tower ticks.
+- `LegL` / `LegR` / `ArmL` / `ArmR` – Empties at the hips and shoulders of a troll with the leg/arm parts (and the weapon) parented under them. The game swings them about X while the troll runs; without them it falls back to squash-and-stretch.
 - `WingL` / `WingR` – flap on flying trolls.
 - `Operator` – the little troll on the tower (purely cosmetic).
 - `Flag` – on the castle: a subdivided plane whose pole edge is at local x = 0 and whose cloth extends along +X. The game waves it in the wind by displacing vertices, so the more subdivisions the smoother (16×8 is used).

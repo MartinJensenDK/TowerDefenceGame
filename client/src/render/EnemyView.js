@@ -17,6 +17,9 @@ export class EnemyView {
       }
     });
     this.wings = [this.root.getObjectByName('WingL'), this.root.getObjectByName('WingR')].filter(Boolean);
+    // Hip and shoulder pivots (see docs/model-contract.md) swing while the troll runs.
+    this.legs = [this.root.getObjectByName('LegL'), this.root.getObjectByName('LegR')].filter(Boolean);
+    this.arms = [this.root.getObjectByName('ArmL'), this.root.getObjectByName('ArmR')].filter(Boolean);
     this.height = new THREE.Box3().setFromObject(this.root).max.y;
 
     // Optional glTF animation clips (see docs/model-contract.md): walk loops, die plays once.
@@ -89,7 +92,19 @@ export class EnemyView {
     this.walkT += dt * 9 * this.enemy.speedMultiplier;
     const s = Math.sin(this.walkT);
     if (this.actions.walk) this.actions.walk.timeScale = this.enemy.speedMultiplier;
-    else this.root.scale.set(1 - 0.04 * s, 1 + 0.07 * s, 1 - 0.04 * s);
+    else if (this.legs.length || this.arms.length) {
+      // running: legs swing opposite each other, each arm swings opposite its own leg, body bobs twice per stride
+      const flying = this.enemy.flying;
+      const swing = flying ? 0.25 : 0.7;
+      this.legs.forEach((leg, i) => {
+        leg.rotation.x = (i === 0 ? 1 : -1) * s * swing;
+      });
+      this.arms.forEach((arm, i) => {
+        arm.rotation.x = (i === 0 ? -1 : 1) * s * swing * 0.8;
+      });
+      this.root.position.y += flying ? 0 : Math.abs(Math.sin(this.walkT)) * 0.06;
+      this.root.scale.set(1, 1 + 0.02 * s, 1);
+    } else this.root.scale.set(1 - 0.04 * s, 1 + 0.07 * s, 1 - 0.04 * s);
     this.wings.forEach((w, i) => {
       w.rotation.z = (i === 0 ? 1 : -1) * Math.sin(this.walkT * 2) * 0.6;
     });
