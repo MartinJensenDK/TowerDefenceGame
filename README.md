@@ -17,21 +17,27 @@ npm start          # serves client/dist and /api on $PORT (default 3000)
 
 For `.env` to be read by plain `npm start`, run `node --env-file=.env server/index.js` (Node 22+).
 
-## Deploy on CloudPanel (Node.js site)
+## Deploy on game.martin-jensen.dk (behind the GameHub)
+The site's hub (`~/htdocs/game.martin-jensen.dk/hub`, PM2 `hub`) lists the games and proxies `/troll-towers/…` to this
+server on port 3002 with the prefix stripped, so the client is built for that sub-path and the server sees plain `/api`
+and `/models` URLs. As the site user (`ssh game-server`):
+
+```bash
+cd ~/htdocs/game.martin-jensen.dk/troll-towers      # git checkout of this repo (origin = GitHub via ~/.ssh/towerdefence_deploy)
+git pull
+npm ci                                              # better-sqlite3 uses a prebuilt binary (no compiler on the host)
+BASE_PATH=/troll-towers/ npm run build              # client/dist with /troll-towers/ asset, model and API URLs
+pm2 restart troll-towers                            # first time: pm2 start server/index.js --name troll-towers --node-args="--env-file=/home/ssh-game/troll-towers.env" && pm2 save
+```
+
+`/home/ssh-game/troll-towers.env` holds `PORT=3002` and `DB_PATH=/home/ssh-game/data/troll-towers.sqlite`. The game is
+registered in the hub's `games.json` (`id: troll-towers`, `port: 3002`); after editing that file run `pm2 restart hub`.
+
+## Deploy on a CloudPanel Node.js site of its own
 1. Create a **Node.js** site in CloudPanel, note the **App Port** it assigns (e.g. 3000) and the site user.
-2. As the site user, clone this repo into the site's root and run:
-   ```bash
-   npm ci
-   npm run build
-   ```
-   `better-sqlite3` downloads a prebuilt binary for common Linux/Node combinations; if `npm ci` tries to compile it instead, install `build-essential` and `python3` on the host first.
+2. As the site user, clone this repo into the site's root and run `npm ci && npm run build` (no `BASE_PATH` when the game owns the whole domain).
 3. Create `.env` from `.env.example` and set `PORT` to the App Port. `DB_PATH` may point anywhere writable (default `server/data/highscores.db`).
-4. Start with PM2 (installed on CloudPanel Node.js sites):
-   ```bash
-   pm2 start server/index.js --name troll-towers --node-args="--env-file=.env"
-   pm2 save
-   ```
-   Or set the CloudPanel site's start command to `node server/index.js`.
+4. Start with PM2: `pm2 start server/index.js --name troll-towers --node-args="--env-file=.env" && pm2 save`, or set the site's start command to `node server/index.js`.
 5. Updates: `git pull && npm ci && npm run build && pm2 restart troll-towers`.
 
 CloudPanel's Nginx proxies the domain to the App Port, so no extra config is needed. Because the app sets `trust proxy`, the rate limiter sees real client IPs.

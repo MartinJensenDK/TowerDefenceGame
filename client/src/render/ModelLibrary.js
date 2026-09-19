@@ -38,7 +38,7 @@ function prepareGltfScene(scene) {
  * Call preload() once, then instantiate() synchronously as often as needed.
  */
 export class ModelLibrary {
-  constructor({ basePath = '/models/' } = {}) {
+  constructor({ basePath = `${import.meta.env.BASE_URL}models/` } = {}) {
     this.basePath = basePath;
     this.loader = new GLTFLoader();
     this.entries = new Map();

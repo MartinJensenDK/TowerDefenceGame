@@ -4,6 +4,7 @@ import { escapeHtml } from './html.js';
 const PENDING_KEY = 'tt.pendingScores';
 const BEST_PREFIX = 'tt.best.';
 const NAME_KEY = 'tt.name';
+const API = `${import.meta.env.BASE_URL}api/highscores`; // BASE_URL is '/' locally and the sub-path in a BASE_PATH build
 
 function readJson(key, fallback) {
   try {
@@ -23,7 +24,7 @@ function writeJson(key, value) {
 }
 
 async function post(entry) {
-  const res = await fetch('/api/highscores', {
+  const res = await fetch(API, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(entry),
@@ -33,7 +34,7 @@ async function post(entry) {
 }
 
 export async function fetchTop(map, limit = 10) {
-  const res = await fetch(`/api/highscores?map=${encodeURIComponent(map)}&limit=${limit}`);
+  const res = await fetch(`${API}?map=${encodeURIComponent(map)}&limit=${limit}`);
   if (!res.ok) throw new Error(`highscores failed: ${res.status}`);
   return res.json();
 }
