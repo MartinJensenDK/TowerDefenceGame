@@ -1,6 +1,6 @@
 # Model contract (Blender → Troll Towers)
 
-Drop `.glb` files into `client/public/models/`. The game loads them at start; anything missing falls back to a built-in placeholder, so you can replace models one at a time.
+All 14 models exist in `blender/troll-towers.blend` (one collection per model) and are exported to `client/public/models/`. Drop new `.glb` files into `client/public/models/` to replace them. The game loads them at start; anything missing falls back to a built-in placeholder, so you can replace models one at a time.
 
 ## Export settings (Blender → File → Export → glTF 2.0)
 - Format: **glTF Binary (.glb)**
@@ -32,7 +32,7 @@ Drop `.glb` files into `client/public/models/`. The game loads them at start; an
 ## Named parts (optional, but recommended for towers)
 - `Turret` – a child object that rotates toward the target (crossbow, cannon). If missing, the whole model rotates.
 - `Muzzle` – an Empty inside `Turret` where projectiles start. If missing, projectiles start 1.2 m above the turret origin.
-- `Spike` – any number of meshes with this name rise 0.45 m when the spike tower ticks.
+- `Spike` – any number of meshes named `Spike`, `Spike.001`, `Spike.002`, … (Blender numbering is fine; the loader strips the dot, which the game also accepts) rise 0.45 m when the spike tower ticks.
 - `WingL` / `WingR` – flap on flying trolls.
 - `Operator` – the little troll on the tower (purely cosmetic).
 

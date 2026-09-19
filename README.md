@@ -41,7 +41,8 @@ CloudPanel's Nginx proxies the domain to the App Port, so no extra config is nee
 - `client/src/render/` – Three.js views and effects
 - `client/src/ui/` – HTML overlay (HUD, panels, menu)
 - `client/src/data/` – towers, enemies and maps (JSON)
-- `client/public/models/` – your Blender `.glb` files, see `docs/model-contract.md`
+- `client/public/models/` – the game's `.glb` models, see `docs/model-contract.md`
+- `blender/troll-towers.blend` – source file for all 14 models (one collection per model; re-export a collection to `client/public/models/<name>.glb` with glTF Binary, +Y up, Apply Modifiers)
 - `server/` – Express API + SQLite
 - `docs/superpowers/` – design spec and implementation plan
 

@@ -3,3 +3,5 @@ client/dist/
 server/data/*.db
 server/data/*.db-*
 .env
+blender/*.blend1
+blender/*.blend@

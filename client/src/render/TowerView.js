@@ -23,7 +23,7 @@ export class TowerView {
     this.root.position.set(tower.x, TILE_TOP, tower.z);
     this.spikes = [];
     this.root.traverse((o) => {
-      if (o.name === 'Spike') this.spikes.push({ mesh: o, baseY: o.position.y });
+      if (/^Spike\.?\d*$/.test(o.name)) this.spikes.push({ mesh: o, baseY: o.position.y });
     });
     this.animT = 0;
     this.spikeT = 0;
