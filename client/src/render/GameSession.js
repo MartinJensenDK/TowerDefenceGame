@@ -19,8 +19,8 @@ export class GameSession {
     this.speed = 1;
 
     this.mapRenderer = new MapRenderer({ scene: this.scene, map: game.map, grid: game.grid, models });
-    sceneManager.setTheme(this.mapRenderer.theme);
-    sceneManager.focusSun(this.mapRenderer.centerX, this.mapRenderer.centerZ);
+    sceneManager.setTheme(this.mapRenderer.theme, this.mapRenderer.extent);
+    sceneManager.focusSun(this.mapRenderer.centerX, this.mapRenderer.centerZ, this.mapRenderer.extent);
     this.cameraRig = new CameraRig(sceneManager.camera, sceneManager.canvas, {
       centerX: this.mapRenderer.centerX,
       centerZ: this.mapRenderer.centerZ,

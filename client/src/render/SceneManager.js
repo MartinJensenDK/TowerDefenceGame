@@ -31,13 +31,23 @@ export class SceneManager {
     this.resize();
   }
 
-  setTheme({ sky, fog }) {
+  setTheme({ sky, fog }, extent = 16) {
     this.scene.background = new THREE.Color(sky);
-    this.scene.fog = new THREE.Fog(new THREE.Color(fog), 45, 110);
+    this.scene.fog = new THREE.Fog(new THREE.Color(fog), Math.max(45, 2.5 * extent), Math.max(110, 6 * extent));
+    this.camera.far = Math.max(300, 8 * extent);
+    this.camera.updateProjectionMatrix();
   }
 
-  focusSun(cx, cz) {
-    this.sun.position.set(cx + 20, 35, cz + 15);
+  focusSun(cx, cz, extent = 16) {
+    const half = Math.max(30, 1.15 * extent);
+    Object.assign(this.sun.shadow.camera, { left: -half, right: half, top: half, bottom: -half, near: 1, far: Math.max(120, 6 * extent) });
+    const size = extent > 40 ? 4096 : 2048;
+    if (this.sun.shadow.mapSize.x !== size) {
+      this.sun.shadow.mapSize.set(size, size);
+      this.sun.shadow.map?.dispose();
+      this.sun.shadow.map = null;
+    }
+    this.sun.position.set(cx + 0.6 * extent, 1.2 * extent + 20, cz + 0.45 * extent);
     this.sun.target.position.set(cx, 0, cz);
     this.sun.shadow.camera.updateProjectionMatrix();
   }

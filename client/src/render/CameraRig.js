@@ -9,7 +9,7 @@ export class CameraRig {
     c.target.set(centerX, 0, centerZ);
     c.enablePan = false;
     c.minDistance = 10;
-    c.maxDistance = 45;
+    c.maxDistance = Math.max(45, 2.6 * extent);
     // OrbitControls measures the polar angle from straight up, so 25°–70° elevation is 20°–65° polar.
     c.minPolarAngle = THREE.MathUtils.degToRad(20);
     c.maxPolarAngle = THREE.MathUtils.degToRad(65);
