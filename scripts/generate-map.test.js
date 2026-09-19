@@ -24,6 +24,28 @@ describe('generateMap', () => {
     expect(generateMap({ ...opts, seed: 8 }).tiles).not.toEqual(generateMap(opts).tiles);
   });
 
+  it('never doubles back: no segment reverses the previous one', () => {
+    const map = generateMap(opts);
+    for (const p of map.paths) {
+      for (let i = 2; i < p.length; i++) {
+        const a = [Math.sign(p[i - 1][0] - p[i - 2][0]), Math.sign(p[i - 1][1] - p[i - 2][1])];
+        const b = [Math.sign(p[i][0] - p[i - 1][0]), Math.sign(p[i][1] - p[i - 1][1])];
+        expect(`${b[0]},${b[1]}`).not.toBe(`${-a[0]},${-a[1]}`);
+      }
+    }
+  });
+
+  it('walks at most 1.6x the manhattan distance to the base', () => {
+    const map = generateMap(opts);
+    const [bx, by] = map.base;
+    for (const p of map.paths) {
+      let walked = 0;
+      for (let i = 1; i < p.length; i++) walked += Math.abs(p[i][0] - p[i - 1][0]) + Math.abs(p[i][1] - p[i - 1][1]);
+      const manhattan = Math.abs(bx - p[0][0]) + Math.abs(by - p[0][1]);
+      expect(walked).toBeLessThanOrEqual(1.6 * manhattan);
+    }
+  });
+
   it('keeps the castle footprint free of buildable tiles and decor', () => {
     const map = generateMap(opts);
     const [bx, by] = map.base;

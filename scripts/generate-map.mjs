@@ -30,7 +30,12 @@ function inFootprint(x, y, [bx, by]) {
 
 /**
  * One axis-aligned random walk from `edge` to `base`.
- * @returns {{points: number[][], tiles: Set<string>}|null} null if it wandered into the castle footprint early
+ *
+ * Every segment either steps towards the base or sidesteps perpendicular to that approach, so the
+ * road winds without ever doubling back: a segment pointing straight back along the previous one
+ * aborts the whole walk (the caller simply retries with fresh rng).
+ *
+ * @returns {{points: number[][], tiles: Set<string>}|null} null if it reversed or wandered into the castle footprint early
  */
 function walkPath(rng, edge, base) {
   const [bx, by] = base;
@@ -46,6 +51,16 @@ function walkPath(rng, edge, base) {
       if (cx === x1 && cy === y1) return;
     }
   };
+  /** True if the straight segment from (x0,y0) to (x1,y1) touches the 3x3 castle footprint. */
+  const hitsFootprint = (x0, y0, x1, y1) => {
+    const dx = Math.sign(x1 - x0);
+    const dy = Math.sign(y1 - y0);
+    for (let cx = x0, cy = y0; ; cx += dx, cy += dy) {
+      if (inFootprint(cx, cy, base)) return true;
+      if (cx === x1 && cy === y1) return false;
+    }
+  };
+  let prev = null;
   for (let guard = 0; guard < 200; guard++) {
     if (x === bx && y === by) break;
     const remX = bx - x;
@@ -53,27 +68,36 @@ function walkPath(rng, edge, base) {
     let axis = Math.abs(remX) >= Math.abs(remY) ? 'x' : 'y';
     if (rng() < 0.25 && (axis === 'x' ? remY : remX) !== 0) axis = axis === 'x' ? 'y' : 'x';
     const rem = axis === 'x' ? remX : remY;
-    let step = 0;
+    let nx = x;
+    let ny = y;
     if (rng() < 0.2) {
-      // wander away from the base for a few tiles so the road winds instead of running straight
-      const back = -Math.sign(rem || 1) * randInt(rng, 3, 8);
-      const nx = axis === 'x' ? x + back : x;
-      const ny = axis === 'y' ? y + back : y;
-      step = nx >= 3 && nx <= SIZE - 4 && ny >= 3 && ny <= SIZE - 4 ? back : 0;
+      // sidestep perpendicular to the approach so the road winds instead of running straight;
+      // never backwards along the approach axis, which is what made enemies turn round
+      const side = (rng() < 0.5 ? -1 : 1) * randInt(rng, 3, 8);
+      const sx = axis === 'x' ? x : x + side;
+      const sy = axis === 'x' ? y + side : y;
+      const coord = axis === 'x' ? sy : sx;
+      if (coord >= 3 && coord <= SIZE - 4 && !hitsFootprint(x, y, sx, sy)) {
+        nx = sx;
+        ny = sy;
+      }
     }
-    if (!step) step = Math.sign(rem) * Math.min(Math.abs(rem), randInt(rng, 4, 14));
-    if (step === 0) continue;
-    const nx = axis === 'x' ? x + step : x;
-    const ny = axis === 'y' ? y + step : y;
-    const isFinal = nx === bx && ny === by;
+    if (nx === x && ny === y) {
+      const step = Math.sign(rem) * Math.min(Math.abs(rem), randInt(rng, 4, 14));
+      if (step === 0) continue;
+      if (axis === 'x') nx = x + step;
+      else ny = y + step;
+    }
+    const dir = [Math.sign(nx - x), Math.sign(ny - y)];
+    // a segment pointing straight back along the previous one would make the enemies u-turn
+    if (prev && dir[0] === -prev[0] && dir[1] === -prev[1]) return null;
     // reject any segment that enters the footprint unless it is the final approach along the base row/column
-    for (let cx = x, cy = y; ; cx += Math.sign(nx - x), cy += Math.sign(ny - y)) {
-      if (inFootprint(cx, cy, base) && !isFinal) return null;
-      if (cx === nx && cy === ny) break;
-    }
+    const isFinal = nx === bx && ny === by;
+    if (!isFinal && hitsFootprint(x, y, nx, ny)) return null;
     mark(x, y, nx, ny);
     x = nx;
     y = ny;
+    prev = dir;
     points.push([x, y]);
   }
   if (x !== bx || y !== by) return null;
