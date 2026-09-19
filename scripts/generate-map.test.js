@@ -52,3 +52,16 @@ describe('generateMap', () => {
     for (let y = by - 1; y <= by + 1; y++) for (let x = bx - 1; x <= bx + 1; x++) expect('CR').toContain(map.tiles[y][x]);
   });
 });
+
+describe('spawn gate footprint', () => {
+  it('marks the tiles beside every spawn as non-buildable', () => {
+    const map = generateMap(opts);
+    for (const [[sx, sy], [nx, ny]] of map.paths) {
+      const flanks = ny === sy ? [[sx, sy - 1], [sx, sy + 1]] : [[sx - 1, sy], [sx + 1, sy]];
+      for (const [fx, fy] of flanks) {
+        const c = map.tiles[fy]?.[fx];
+        if (c !== undefined) expect(c).not.toBe('.');
+      }
+    }
+  });
+});

@@ -148,6 +148,11 @@ export function generateMap({ seed, id, name, theme, description = '' }) {
   }
   const [bx, by] = base;
   for (let y = by - 1; y <= by + 1; y++) for (let x = bx - 1; x <= bx + 1; x++) if (grid[y][x] !== 'R') grid[y][x] = 'C';
+  // the spawn gate is three tiles wide: the tiles beside each spawn (across the road) cannot be built on
+  for (const [[sx, sy], [nx, ny]] of paths) {
+    const flanks = ny === sy ? [[sx, sy - 1], [sx, sy + 1]] : [[sx - 1, sy], [sx + 1, sy]];
+    for (const [fx, fy] of flanks) if (grid[fy]?.[fx] === '.') grid[fy][fx] = 'G';
+  }
 
   const nearRoadOrCastle = (x, y) => {
     for (let dy = -1; dy <= 1; dy++) {

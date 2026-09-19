@@ -1,4 +1,4 @@
-const TILE_CHARS = '.RWDC';
+const TILE_CHARS = '.RWDCG';
 const REQUIRED = ['id', 'name', 'theme', 'width', 'height', 'tiles', 'paths', 'base', 'waves', 'startGold'];
 
 /**

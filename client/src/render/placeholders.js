@@ -233,9 +233,14 @@ const BUILDERS = {
 
   spawn_gate() {
     const g = new THREE.Group();
-    for (const sx of [-1, 1]) g.add(mesh(new THREE.CylinderGeometry(0.2, 0.26, 1.7, 8), toon(C.woodDark), { x: sx * 0.75, y: 0.85 }));
-    g.add(mesh(new THREE.BoxGeometry(1.9, 0.28, 0.3), toon(C.wood), { y: 1.75 }));
-    g.add(mesh(new THREE.SphereGeometry(0.22, 10, 8), toon(0xdddddd), { y: 2.05 }));
+    for (const sx of [-1, 1]) {
+      g.add(mesh(new THREE.BoxGeometry(1.1, 3.0, 1.1), toon(C.stone), { x: sx * 1.9, y: 1.5 }));
+      g.add(mesh(new THREE.ConeGeometry(0.8, 0.7, 4), toon(C.woodDark), { x: sx * 1.9, y: 3.35 }));
+    }
+    g.add(mesh(new THREE.BoxGeometry(2.8, 0.7, 0.8), toon(C.stone), { y: 2.1 }));
+    g.add(mesh(new THREE.BoxGeometry(1.7, 1.7, 0.1), toon(0x111014), { y: 0.85, z: 0.42 }));
+    for (let i = -2; i <= 2; i++) g.add(mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.2, 6), toon(C.metal), { x: i * 0.3, y: 1.55, z: 0.5 }));
+    g.add(mesh(new THREE.SphereGeometry(0.32, 12, 10), toon(0xdddddd), { y: 2.85 }));
     return g;
   },
 };

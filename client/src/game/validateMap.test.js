@@ -119,3 +119,10 @@ describe('castle footprint', () => {
     expect(() => validateMap(map, enemies)).toThrow(/footprint/);
   });
 });
+
+describe('gate tiles', () => {
+  it('accepts G tiles beside the spawn', () => {
+    const map = makeTestMap({ tiles: ['G...CCC', 'RRRRRRC', 'G...CCC'] });
+    expect(validateMap(map, enemies)).toBe(true);
+  });
+});
