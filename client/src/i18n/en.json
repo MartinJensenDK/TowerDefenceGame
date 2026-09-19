@@ -3,6 +3,10 @@
   "app.subtitle": "Cartoon tower defence. Keep the trolls out!",
   "app.loading": "Loading…",
   "app.webglMissing": "Your browser could not start WebGL, which this game needs. Try a current version of Chrome, Firefox, Edge or Safari.",
+  "app.startFailed": "Could not start that map. Please pick another one.",
+
+  "unit.percent": "{value}%",
+  "unit.seconds": "{value}s",
 
   "menu.chooseMap": "Choose a map",
   "menu.play": "Play",

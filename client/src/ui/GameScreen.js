@@ -25,7 +25,6 @@ export class GameScreen {
     this.input = new InputController(sceneManager.canvas, {
       pickTile: (x, y) => this.session.pickTile(x, y),
       onTileClick: (tile) => this.#onTileClick(tile),
-      onTileHover: () => {},
       onCancel: () => this.closePanel(),
     });
 
@@ -102,6 +101,7 @@ export class GameScreen {
     this.session.hideGhost();
     this.selectedTile = null;
     this.selectedTower = null;
+    this.previewType = null;
   }
 
   pause() {
@@ -117,7 +117,7 @@ export class GameScreen {
     this.sceneManager.onFrame = null;
     this.input.dispose();
     this.closePanel();
-    this.hud.hide();
+    this.hud.dispose();
     this.session.dispose();
   }
 }

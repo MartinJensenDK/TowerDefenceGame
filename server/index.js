@@ -4,7 +4,8 @@ import { openDb } from './db.js';
 import { createApp } from './app.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const PORT = Number(process.env.PORT ?? 3000);
+const parsed = Number.parseInt(process.env.PORT ?? '', 10);
+const PORT = Number.isInteger(parsed) && parsed > 0 ? parsed : 3000;
 const DB_PATH = process.env.DB_PATH ?? path.join(here, 'data', 'highscores.db');
 const STATIC_DIR = path.join(here, '..', 'client', 'dist');
 

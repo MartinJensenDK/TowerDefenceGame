@@ -15,7 +15,7 @@ npm run build      # -> client/dist
 npm start          # serves client/dist and /api on $PORT (default 3000)
 ```
 
-For `.env` to be read by plain `npm start`, run `node --env-file=.env server/index.js` (Node 20.6+).
+For `.env` to be read by plain `npm start`, run `node --env-file=.env server/index.js` (Node 22+).
 
 ## Deploy on CloudPanel (Node.js site)
 1. Create a **Node.js** site in CloudPanel, note the **App Port** it assigns (e.g. 3000) and the site user.
@@ -24,10 +24,11 @@ For `.env` to be read by plain `npm start`, run `node --env-file=.env server/ind
    npm ci
    npm run build
    ```
+   `better-sqlite3` downloads a prebuilt binary for common Linux/Node combinations; if `npm ci` tries to compile it instead, install `build-essential` and `python3` on the host first.
 3. Create `.env` from `.env.example` and set `PORT` to the App Port. `DB_PATH` may point anywhere writable (default `server/data/highscores.db`).
 4. Start with PM2 (installed on CloudPanel Node.js sites):
    ```bash
-   pm2 start server/index.js --name troll-towers --update-env
+   pm2 start server/index.js --name troll-towers --node-args="--env-file=.env"
    pm2 save
    ```
    Or set the CloudPanel site's start command to `node server/index.js`.

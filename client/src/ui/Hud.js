@@ -70,4 +70,9 @@ export class Hud {
   hide() {
     this.root.hidden = true;
   }
+
+  dispose() {
+    clearTimeout(this.toastTimer);
+    this.root.hidden = true;
+  }
 }

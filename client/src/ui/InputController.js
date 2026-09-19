@@ -22,7 +22,7 @@ export class InputController {
       this.onTileClick(this.pickTile(e.clientX, e.clientY));
     };
     this._onMove = (e) => {
-      if (this.down) return;
+      if (this.down || !this.onTileHover) return;
       this.onTileHover(this.pickTile(e.clientX, e.clientY));
     };
     this._onKey = (e) => {

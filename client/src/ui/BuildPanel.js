@@ -3,8 +3,8 @@ import { t } from '../i18n/i18n.js';
 const STAT_KEYS = ['damage', 'fireRate', 'range', 'tickInterval', 'freezeRadius', 'slow'];
 
 function formatStat(key, value) {
-  if (key === 'slow') return `${Math.round((1 - value) * 100)}%`;
-  if (key === 'tickInterval') return `${value}s`;
+  if (key === 'slow') return t('unit.percent', { value: Math.round((1 - value) * 100) });
+  if (key === 'tickInterval') return t('unit.seconds', { value });
   return String(value);
 }
 
@@ -40,8 +40,27 @@ export class BuildPanel {
 
   refresh(gold) {
     if (!this.visible || !this.target) return;
-    if (this.target.kind === 'build') this.#renderBuild(gold);
-    else this.#renderTower(gold);
+    if (this.target.kind === 'build') this.#refreshBuild(gold);
+    else this.#refreshTower(gold);
+  }
+
+  #refreshBuild(gold) {
+    for (const btn of this.root.querySelectorAll('.tower-choice')) {
+      const cost = this.towerDefs[btn.dataset.type].levels[0].cost;
+      const ok = gold >= cost;
+      btn.disabled = !ok;
+      btn.classList.toggle('too-expensive', !ok);
+    }
+  }
+
+  #refreshTower(gold) {
+    const { tower } = this.target;
+    const canUpgrade = tower.canUpgrade;
+    const affordable = canUpgrade && gold >= tower.upgradeCost;
+    const upgradeBtn = this.root.querySelector('[data-action="upgrade"]');
+    upgradeBtn.disabled = !affordable;
+    upgradeBtn.textContent = canUpgrade ? t('build.upgrade', { cost: tower.upgradeCost }) : t('build.maxLevel');
+    this.root.querySelector('[data-action="sell"]').textContent = t('build.sell', { refund: tower.sellRefund });
   }
 
   hide() {

@@ -89,7 +89,7 @@ Events (name → payload):
 - `tower:built` {tower}
 - `tower:upgraded` {tower}
 - `tower:sold` {tower, refund}
-- `tower:fired` {tower, target, projectileType}
+- `tower:fired` {tower, target, projectile}
 - `tile:frozenChanged` {tiles[]}
 - `wave:started` {wave}
 - `wave:ended` {wave, bonusGold, bonusScore}
@@ -144,8 +144,8 @@ placed (tree / rock / cactus / reed).
 
 Three.js OrbitControls targeting map centre. Rotate 360° (right-drag or
 left-drag on empty ground with no build action), zoom via wheel
-(distance clamped between ~10 and ~45 units), polar angle clamped to
-25°–70°. Two-finger touch zoom/rotate comes with OrbitControls.
+(distance clamped between ~10 and ~45 units), elevation clamped to
+25°–70° above the ground (OrbitControls polar angle 20°–65°). Two-finger touch zoom/rotate comes with OrbitControls.
 Panning disabled.
 
 ### Building interaction
@@ -213,8 +213,8 @@ same formula. Score submitted at loss records the wave reached.
   and fades.
 - Death: enemy spins 1 turn while flattening to 0.1 height, then pops
   out with 5 small star particles.
-- Frozen tiles: light-blue translucent overlay plane with a slow
-  animated ripple (vertex offset) and occasional bubble sprite.
+- Frozen tiles: light-blue translucent overlay plane with a pulsing
+  opacity and gentle bob.
 - Spike: spikes (cones) rise out of ground on each tick and sink back.
 
 Lighting: one hemisphere light + one directional light with soft

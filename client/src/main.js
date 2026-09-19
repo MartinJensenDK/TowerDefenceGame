@@ -9,7 +9,17 @@ import { MAPS } from './data/index.js';
 
 function showFatal(message) {
   const el = document.getElementById('fatal');
-  el.textContent = message;
+  el.textContent = '';
+  const p = document.createElement('p');
+  p.textContent = message;
+  const backLabel = t('menu.back');
+  const btn = document.createElement('button');
+  btn.className = 'btn';
+  btn.textContent = backLabel === 'menu.back' ? 'Back' : backLabel;
+  btn.addEventListener('click', () => {
+    el.hidden = true;
+  });
+  el.append(p, btn);
   el.hidden = false;
 }
 
@@ -44,35 +54,43 @@ async function boot() {
     menu.hide();
     hideDialog(dialogEl);
     screen?.dispose();
-    screen = new GameScreen({
-      mapId,
-      sceneManager,
-      models,
-      onEnd: ({ won, score, wave }) => {
-        recordBest(mapId, score);
-        showEndDialog(dialogEl, {
-          won,
-          score,
-          wave,
-          onSubmit: (name) => submitScore({ name, map: mapId, score, wave }),
-          onEndless: () => {
-            hideDialog(dialogEl);
-            screen.game.startEndless();
-          },
-          onMenu: quitToMenu,
-        });
-      },
-      onQuit: () => {
-        screen.pause();
-        showPauseDialog(dialogEl, {
-          onResume: () => {
-            hideDialog(dialogEl);
-            screen.resume();
-          },
-          onQuit: quitToMenu,
-        });
-      },
-    });
+    try {
+      screen = new GameScreen({
+        mapId,
+        sceneManager,
+        models,
+        onEnd: ({ won, score, wave }) => {
+          recordBest(mapId, score);
+          showEndDialog(dialogEl, {
+            won,
+            score,
+            wave,
+            onSubmit: (name) => submitScore({ name, map: mapId, score, wave }),
+            onEndless: () => {
+              hideDialog(dialogEl);
+              screen.game.startEndless();
+            },
+            onMenu: quitToMenu,
+          });
+        },
+        onQuit: () => {
+          screen.pause();
+          showPauseDialog(dialogEl, {
+            onResume: () => {
+              hideDialog(dialogEl);
+              screen.resume();
+            },
+            onQuit: quitToMenu,
+          });
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      screen = null;
+      menu.show();
+      showFatal(t('app.startFailed'));
+      return;
+    }
     if (import.meta.env.DEV) window.__tt = { game: screen.game, session: screen.session, screen };
   }
 
@@ -82,4 +100,8 @@ async function boot() {
   else menu.show();
 }
 
-boot();
+boot().catch((err) => {
+  console.error(err);
+  const msg = t('app.webglMissing');
+  showFatal(msg === 'app.webglMissing' ? 'Your browser could not start WebGL, which this game needs. Try a current version of Chrome, Firefox, Edge or Safari.' : msg);
+});
