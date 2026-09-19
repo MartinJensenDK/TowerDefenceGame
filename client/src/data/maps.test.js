@@ -3,8 +3,8 @@ import { validateMap } from '../game/validateMap.js';
 import { MAPS, MAP_ORDER, ENEMY_DEFS, TOWER_DEFS } from './index.js';
 
 describe('shipped maps', () => {
-  it('lists four maps in order', () => {
-    expect(MAP_ORDER).toEqual(['green', 'snow', 'desert', 'water']);
+  it('lists six maps in order', () => {
+    expect(MAP_ORDER).toEqual(['green', 'snow', 'desert', 'water', 'vast', 'dunes']);
     expect(Object.keys(TOWER_DEFS)).toHaveLength(4);
     expect(Object.keys(ENEMY_DEFS)).toHaveLength(4);
   });
@@ -14,6 +14,18 @@ describe('shipped maps', () => {
       const map = MAPS[id];
       expect(map.id).toBe(id);
       expect(map.theme).toBe(id);
+      expect(validateMap(map, ENEMY_DEFS)).toBe(true);
+    });
+  }
+
+  for (const [id, theme] of [['vast', 'green'], ['dunes', 'desert']]) {
+    it(`${id} is a generated 100x100 map with three paths`, () => {
+      const map = MAPS[id];
+      expect(map.id).toBe(id);
+      expect(map.theme).toBe(theme);
+      expect([map.width, map.height]).toEqual([100, 100]);
+      expect(map.paths).toHaveLength(3);
+      expect(map.modifiers.waveInterval).toBe(45);
       expect(validateMap(map, ENEMY_DEFS)).toBe(true);
     });
   }

@@ -94,6 +94,8 @@ button { font: inherit; cursor: pointer; }
 .map-card[data-theme="snow"] { background: #e6f0ff; }
 .map-card[data-theme="desert"] { background: #ffe1a3; }
 .map-card[data-theme="water"] { background: #b3e5ea; }
+.map-card[data-theme="vast"] { background: #a9dd8f; }
+.map-card[data-theme="dunes"] { background: #f5d38a; }
 .map-card.unavailable { opacity: 0.5; }
 .map-card h3 { font-size: 1.15rem; }
 .map-card p { margin: 0; font-size: 0.9rem; }

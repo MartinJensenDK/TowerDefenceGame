@@ -25,6 +25,10 @@
   "map.desert.description": "A short, fast road through the sand. The trolls arrive quickly.",
   "map.water.name": "Soggy Swamp",
   "map.water.description": "Two roads, little dry land. Every build spot counts.",
+  "map.vast.name": "Vast Meadows",
+  "map.vast.description": "A huge open valley with three long roads. Waves keep coming on a timer.",
+  "map.dunes.name": "Endless Dunes",
+  "map.dunes.description": "Three caravan roads across an enormous desert. The waves never wait.",
 
   "hud.gold": "Gold",
   "hud.score": "Score",

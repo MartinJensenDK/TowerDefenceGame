@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'node:path';
 
-export const MAP_IDS = ['green', 'snow', 'desert', 'water'];
+export const MAP_IDS = ['green', 'snow', 'desert', 'water', 'vast', 'dunes'];
 const NAME_MAX = 16;
 
 /**

@@ -46,6 +46,9 @@ CloudPanel's Nginx proxies the domain to the App Port, so no extra config is nee
 - `server/` – Express API + SQLite
 - `docs/superpowers/` – design spec and implementation plan
 
+## Generating maps
+The big 100×100 maps (`vast`, `dunes`) are produced by a seeded generator, not written by hand. Re-create one with `node scripts/generate-map.mjs --id vast --name "Vast Meadows" --theme green --seed 7 --description "A huge open valley with three long roads. Waves keep coming on a timer."` — it writes `client/src/data/maps/<id>.json` with three winding roads from three map edges, a castle near the middle and the 20-wave table from `green.json` scaled up. The same seed always yields the same map; register the result as described below.
+
 ## Adding a map / tower / enemy
 - Map: add `client/src/data/maps/<id>.json` (see existing ones), register it in `client/src/data/index.js`, add `map.<id>.name` / `.description` to `client/src/i18n/en.json`, add the id to `MAP_IDS` in `server/app.js`, add a theme in `client/src/render/MapRenderer.js`.
 - Tower: add to `towers.json`, `TOWER_ORDER`, i18n `tower.<id>.*`, a placeholder builder in `render/placeholders.js` and `MODEL_NAMES`.
