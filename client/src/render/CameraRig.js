@@ -16,7 +16,7 @@ export class CameraRig {
     c.enableDamping = true;
     c.dampingFactor = 0.08;
     c.rotateSpeed = 0.6;
-    c.zoomSpeed = 0.8;
+    c.zoomSpeed = 2.5; // ~12 % per wheel notch: the full 10–45 range takes about a dozen notches
     // Zoom towards the point under the cursor; the orbit target slides along the ground plane
     // and stays within the map so the camera cannot wander off into the void.
     c.zoomToCursor = true;
