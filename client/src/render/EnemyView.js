@@ -49,7 +49,7 @@ export class EnemyView {
 
   syncTransform() {
     this.root.position.set(this.enemy.x, 0, this.enemy.z);
-    this.root.rotation.y = this.enemy.heading;
+    this.root.rotation.set(0, this.enemy.heading, 0);
   }
 
   worldPosition(target = new THREE.Vector3()) {
@@ -90,12 +90,17 @@ export class EnemyView {
     const s = Math.sin(this.walkT);
     if (this.actions.walk) this.actions.walk.timeScale = hacking ? 0 : this.enemy.speedMultiplier;
     else if (hacking && (this.legs.length || this.arms.length)) {
-      // stopped at a barricade: feet planted, both arms chop down at it, body rocks with each blow
-      const chop = Math.max(0, s);
-      for (const leg of this.legs) leg.rotation.x = 0;
-      for (const arm of this.arms) arm.rotation.x = -1.6 + chop * 1.9;
-      this.root.rotation.x += (chop - 0.5) * 0.12;
-      this.root.scale.set(1, 1 - 0.03 * chop, 1);
+      // stopped at a barricade: one foot forward, both arms swing from over the head down onto it,
+      // the body leans into each blow (absolute angles: syncTransform() reset the root every frame)
+      const k = (s + 1) / 2; // 0 = wound up over the head, 1 = weapon down on the barricade
+      const strike = k * k; // slow wind-up, fast hit
+      this.legs.forEach((leg, i) => {
+        leg.rotation.x = i === 0 ? 0.35 : -0.35;
+      });
+      for (const arm of this.arms) arm.rotation.x = -2.3 + strike * 3.0;
+      this.root.rotation.x = 0.28 * strike - 0.08;
+      this.root.position.y += (1 - strike) * 0.04;
+      this.root.scale.set(1, 1 - 0.04 * strike, 1);
     } else if (this.legs.length || this.arms.length) {
       // running: legs swing opposite each other, each arm swings opposite its own leg, body bobs twice per stride
       const flying = this.enemy.flying;
