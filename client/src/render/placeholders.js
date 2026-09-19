@@ -212,17 +212,22 @@ const BUILDERS = {
     return g;
   },
 
+  /** 3x3-tile castle (roughly 6 m across), origin bottom centre, gate on +Z. */
   base_castle() {
     const g = new THREE.Group();
-    g.add(mesh(new THREE.BoxGeometry(1.6, 1.0, 1.6), toon(C.stone), { y: 0.5 }));
+    g.add(mesh(new THREE.BoxGeometry(5.0, 1.6, 5.0), toon(C.stone), { y: 0.8 }));
     for (const sx of [-1, 1]) {
       for (const sz of [-1, 1]) {
-        g.add(mesh(new THREE.CylinderGeometry(0.24, 0.24, 1.5, 10), toon(C.stoneDark), { x: sx * 0.7, y: 0.75, z: sz * 0.7 }));
-        g.add(mesh(new THREE.ConeGeometry(0.3, 0.4, 10), toon(C.red), { x: sx * 0.7, y: 1.7, z: sz * 0.7 }));
+        g.add(mesh(new THREE.CylinderGeometry(0.5, 0.5, 2.6, 12), toon(C.stoneDark), { x: sx * 2.2, y: 1.3, z: sz * 2.2 }));
+        g.add(mesh(new THREE.ConeGeometry(0.62, 0.8, 12), toon(C.red), { x: sx * 2.2, y: 2.9, z: sz * 2.2 }));
       }
     }
-    g.add(mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.2, 6), toon(C.metal), { y: 1.6 }));
-    g.add(mesh(new THREE.BoxGeometry(0.55, 0.32, 0.03), toon(C.gold), { x: 0.3, y: 2.0, name: 'Flag' }));
+    g.add(mesh(new THREE.BoxGeometry(2.0, 3.0, 2.0), toon(C.stone), { y: 1.5 }));
+    g.add(mesh(new THREE.BoxGeometry(1.2, 1.4, 0.3), toon(C.woodDark), { y: 0.7, z: 2.5 }));
+    g.add(mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.6, 6), toon(C.metal), { y: 3.8 }));
+    const flag = new THREE.PlaneGeometry(0.9, 0.5, 16, 8);
+    flag.translate(0.45, 0, 0); // pole edge at x = 0, cloth along +X
+    g.add(mesh(flag, toon(C.gold, { side: THREE.DoubleSide }), { y: 4.3, name: 'Flag' }));
     return g;
   },
 

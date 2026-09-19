@@ -41,6 +41,8 @@ export class MapRenderer {
     this.ownedGeometries = [];
     this.ownedMaterials = [];
     this.time = 0;
+    this.flag = null;
+    this.flagRest = null;
     this.frozenMaterial = new THREE.MeshToonMaterial({ color: 0x9fdcff, transparent: true, opacity: 0.55, depthWrite: false });
     this.frozenGeometry = new THREE.PlaneGeometry(TILE_SIZE * 0.96, TILE_SIZE * 0.96);
 
@@ -72,32 +74,46 @@ export class MapRenderer {
       road: new THREE.MeshToonMaterial({ color: this.theme.road }),
       water: new THREE.MeshToonMaterial({ color: this.theme.water, transparent: true, opacity: 0.9 }),
     };
+    mats.castle = new THREE.MeshToonMaterial({ color: new THREE.Color(this.theme.road).multiplyScalar(0.85) });
     this.ownedGeometries.push(box);
-    this.ownedMaterials.push(mats.g0, mats.g1, mats.road, mats.water);
+    this.ownedMaterials.push(mats.g0, mats.g1, mats.road, mats.water, mats.castle);
+
+    // One InstancedMesh per material: the kind decides both material and tile top.
+    const tops = { road: 0, castle: 0, water: -0.2, g0: TILE_TOP, g1: TILE_TOP };
+    const kindOf = (x, y, type) => {
+      if (type === TILE.ROAD) return 'road';
+      if (type === TILE.WATER) return 'water';
+      if (type === TILE.CASTLE) return 'castle';
+      return (x + y) % 2 ? 'g0' : 'g1';
+    };
+    const counts = { g0: 0, g1: 0, road: 0, water: 0, castle: 0 };
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) counts[kindOf(x, y, tiles[y][x])] += 1;
+    }
+    const instanced = {};
+    for (const [kind, count] of Object.entries(counts)) {
+      if (!count) continue;
+      const im = new THREE.InstancedMesh(box, mats[kind], count);
+      im.name = `tiles_${kind}`;
+      im.receiveShadow = true;
+      im.castShadow = kind !== 'water';
+      im.userData.tiles = [];
+      instanced[kind] = im;
+      this.group.add(im);
+      this.groundMeshes.push(im);
+    }
+    const matrix = new THREE.Matrix4();
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const type = tiles[y][x];
-        let mat;
-        let top;
-        if (type === TILE.ROAD) {
-          mat = mats.road;
-          top = 0;
-        } else if (type === TILE.WATER) {
-          mat = mats.water;
-          top = -0.2;
-        } else {
-          mat = (x + y) % 2 ? mats.g0 : mats.g1;
-          top = TILE_TOP;
-        }
-        const m = new THREE.Mesh(box, mat);
-        m.position.set((x + 0.5) * TILE_SIZE, top - TILE_THICKNESS / 2, (y + 0.5) * TILE_SIZE);
-        m.receiveShadow = true;
-        m.castShadow = type !== TILE.WATER;
-        m.userData.tile = { x, y, type };
-        this.group.add(m);
-        this.groundMeshes.push(m);
+        const kind = kindOf(x, y, type);
+        const im = instanced[kind];
+        const i = im.userData.tiles.length;
+        im.setMatrixAt(i, matrix.makeTranslation((x + 0.5) * TILE_SIZE, tops[kind] - TILE_THICKNESS / 2, (y + 0.5) * TILE_SIZE));
+        im.userData.tiles[i] = { x, y, type };
       }
     }
+    for (const im of Object.values(instanced)) im.instanceMatrix.needsUpdate = true;
     const slabGeometry = new THREE.BoxGeometry(width * TILE_SIZE + 1.5, 1.6, height * TILE_SIZE + 1.5);
     const slabMaterial = new THREE.MeshToonMaterial({ color: new THREE.Color(this.theme.ground[1]).multiplyScalar(0.55) });
     this.ownedGeometries.push(slabGeometry);
@@ -130,7 +146,14 @@ export class MapRenderer {
     const base = this.models.instantiate('base_castle').root;
     const bw = this.grid.tileToWorld(bx, by);
     base.position.set(bw.x, 0, bw.z);
+    // The castle gate faces local +Z, so aim +Z back down the road the enemies arrive on.
+    const mainPath = this.map.paths?.[0];
+    if (mainPath && mainPath.length >= 2) {
+      const [px, py] = mainPath[mainPath.length - 2];
+      base.rotation.y = Math.atan2(px - bx, py - by);
+    }
     this.group.add(base);
+    this.#setupFlag(base);
 
     for (const path of this.map.paths) {
       const [sx, sy] = path[0];
@@ -141,6 +164,38 @@ export class MapRenderer {
       gate.rotation.y = Math.atan2(nx - sx, ny - sy);
       this.group.add(gate);
     }
+  }
+
+  /**
+   * Prepares the castle's `Flag` mesh for per-frame waving: the geometry and material are cloned
+   * (the ModelLibrary template owns the originals) and the rest positions are copied out.
+   * The cloth runs along local +X from the pole; of the remaining two axes the thinner one is the
+   * "flat" axis (the one the cloth folds across) and the other is "up", which works for both the
+   * GLB flag (XZ plane) and the placeholder plane (XY plane).
+   */
+  #setupFlag(base) {
+    const flag = base.getObjectByName('Flag') ?? null;
+    const src = flag?.isMesh ? flag.geometry?.attributes?.position : null;
+    // Interleaved attributes would not be addressable as i * 3, so leave those flags static.
+    if (!src || src.isInterleavedBufferAttribute || src.itemSize !== 3) return;
+
+    flag.geometry = flag.geometry.clone();
+    this.ownedGeometries.push(flag.geometry);
+    if (flag.material && !Array.isArray(flag.material)) {
+      flag.material = flag.material.clone();
+      flag.material.side = THREE.DoubleSide;
+      this.ownedMaterials.push(flag.material);
+    }
+
+    const position = flag.geometry.attributes.position;
+    this.flagRest = new Float32Array(position.array);
+    flag.geometry.computeBoundingBox();
+    const bb = flag.geometry.boundingBox;
+    this.flagX0 = bb.min.x;
+    this.flagWidth = Math.max(1e-3, bb.max.x - bb.min.x);
+    this.flagFlat = bb.max.y - bb.min.y <= bb.max.z - bb.min.z ? 1 : 2;
+    this.flagUp = this.flagFlat === 1 ? 2 : 1;
+    this.flag = flag;
   }
 
   /** Replaces the frozen overlays with one plane per frozen road tile. */
@@ -162,15 +217,39 @@ export class MapRenderer {
     for (const [i, plane] of this.frozenGroup.children.entries()) {
       plane.position.y = 0.02 + 0.015 * Math.sin(this.time * 3 + i);
     }
+    this.#waveFlag();
+  }
+
+  /** Displaces the cloth away from its rest shape; the pole edge (f = 0) stays put. */
+  #waveFlag() {
+    if (!this.flag || !this.flagRest) return;
+    const position = this.flag.geometry.attributes.position;
+    const arr = position.array;
+    const rest = this.flagRest;
+    const flat = this.flagFlat;
+    const up = this.flagUp;
+    const t = this.time;
+    for (let i = 0; i < position.count; i++) {
+      const b = i * 3;
+      const x = rest[b];
+      const f = (x - this.flagX0) / this.flagWidth; // 0 at the pole, 1 at the free end
+      arr[b + flat] = rest[b + flat] + Math.sin(x * 4 - t * 5) * 0.1 * f;
+      arr[b + up] = rest[b + up] + Math.sin(x * 6 - t * 7) * 0.06 * f;
+    }
+    position.needsUpdate = true;
+    this.flag.geometry.computeVertexNormals();
   }
 
   pickTile(raycaster) {
     const hits = raycaster.intersectObjects(this.groundMeshes, false);
-    return hits.length ? hits[0].object.userData.tile : null;
+    if (!hits.length) return null;
+    const { object, instanceId } = hits[0];
+    return object.userData.tiles[instanceId] ?? null;
   }
 
   dispose() {
     this.scene.remove(this.group);
+    for (const im of this.groundMeshes) im.dispose?.();
     for (const g of this.ownedGeometries) g.dispose();
     for (const m of this.ownedMaterials) m.dispose();
     this.frozenGeometry.dispose();
