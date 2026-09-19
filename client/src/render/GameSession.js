@@ -121,7 +121,7 @@ export class GameSession {
     this.ghost.setOk(this.game.grid.isBuildable(tile.x, tile.y) && affordable);
   }
 
-  /** Marks the tile the player selected for building with a blue frame. */
+  /** Marks the tile the player selected (to build on, or holding the selected tower) with a blue frame. */
   highlightTile(tile) {
     const w = this.game.grid.tileToWorld(tile.x, tile.y);
     this.tileHighlight.show(w.x, w.z);

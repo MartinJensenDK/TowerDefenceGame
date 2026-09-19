@@ -27,7 +27,7 @@ function frameGeometry() {
   return geo;
 }
 
-/** Blue frame that marks the tile the player has selected for building. */
+/** Blue frame that marks the tile the player has selected: a build spot or an existing tower. */
 export class TileHighlight {
   constructor(scene) {
     this.scene = scene;

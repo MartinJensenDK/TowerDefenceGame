@@ -83,7 +83,7 @@ export class GameScreen {
       this.selectedTower = tower;
       this.selectedTile = null;
       this.session.hideGhost();
-      this.session.clearHighlight();
+      this.session.highlightTile({ x: tower.tileX, y: tower.tileY });
       this.panel.showTower(tower, this.game.economy.gold);
       return;
     }
