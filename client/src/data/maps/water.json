@@ -1,0 +1,51 @@
+{
+  "id": "water",
+  "name": "Soggy Swamp",
+  "theme": "water",
+  "description": "Two roads, little dry land. Every build spot counts.",
+  "width": 16,
+  "height": 12,
+  "tiles": [
+    "WW......WWW.....",
+    "W......D..W.....",
+    "RRRRR.....W..WW.",
+    "....R.W.......W.",
+    "....R.WW........",
+    "....R......D....",
+    "....RRRRRRRRRRRR",
+    "WW.......R....W.",
+    "W..D.....R...WW.",
+    ".........R......",
+    "RRRRRRRRRR.....W",
+    "WWW.....W....WWW"
+  ],
+  "paths": [
+    [[0, 2], [4, 2], [4, 6], [15, 6]],
+    [[0, 10], [9, 10], [9, 6], [15, 6]]
+  ],
+  "base": [15, 6],
+  "startGold": 240,
+  "modifiers": { "frostBonus": 1.0 },
+  "waves": [
+    { "spawns": [{ "type": "scout", "count": 6, "interval": 1.0, "path": 0 }] },
+    { "spawns": [{ "type": "scout", "count": 6, "interval": 1.0, "path": 1 }] },
+    { "spawns": [{ "type": "scout", "count": 6, "interval": 1.0, "path": 0 }, { "type": "scout", "count": 6, "interval": 1.0, "path": 1 }] },
+    { "spawns": [{ "type": "brute", "count": 3, "interval": 2.0, "path": 0 }, { "type": "scout", "count": 6, "interval": 0.8, "path": 1, "delay": 2 }] },
+    { "spawns": [{ "type": "bat", "count": 6, "interval": 1.0, "path": 1 }] },
+    { "spawns": [{ "type": "scout", "count": 10, "interval": 0.7, "path": 0 }, { "type": "brute", "count": 3, "interval": 2.0, "path": 1, "delay": 1 }] },
+    { "spawns": [{ "type": "bat", "count": 6, "interval": 1.0, "path": 0 }, { "type": "bat", "count": 6, "interval": 1.0, "path": 1, "delay": 2 }] },
+    { "spawns": [{ "type": "brute", "count": 6, "interval": 1.5, "path": 1 }, { "type": "scout", "count": 10, "interval": 0.6, "path": 0, "delay": 3 }] },
+    { "spawns": [{ "type": "scout", "count": 12, "interval": 0.5, "path": 0 }, { "type": "scout", "count": 12, "interval": 0.5, "path": 1 }] },
+    { "spawns": [{ "type": "boss", "count": 1, "interval": 1.0, "path": 0 }, { "type": "scout", "count": 8, "interval": 0.8, "path": 1, "delay": 3 }] },
+    { "spawns": [{ "type": "bat", "count": 10, "interval": 0.8, "path": 0 }, { "type": "brute", "count": 5, "interval": 1.5, "path": 1, "delay": 2 }] },
+    { "spawns": [{ "type": "scout", "count": 20, "interval": 0.5, "path": 1 }, { "type": "bat", "count": 6, "interval": 0.9, "path": 0, "delay": 4 }] },
+    { "spawns": [{ "type": "brute", "count": 6, "interval": 1.3, "path": 0 }, { "type": "brute", "count": 6, "interval": 1.3, "path": 1, "delay": 1 }] },
+    { "spawns": [{ "type": "bat", "count": 14, "interval": 0.7, "path": 1 }] },
+    { "spawns": [{ "type": "scout", "count": 15, "interval": 0.45, "path": 0 }, { "type": "scout", "count": 15, "interval": 0.45, "path": 1, "delay": 1 }, { "type": "brute", "count": 4, "interval": 1.5, "path": 0, "delay": 8 }] },
+    { "spawns": [{ "type": "brute", "count": 8, "interval": 1.2, "path": 1 }, { "type": "bat", "count": 8, "interval": 0.8, "path": 0, "delay": 2 }] },
+    { "spawns": [{ "type": "scout", "count": 30, "interval": 0.4, "path": 0 }] },
+    { "spawns": [{ "type": "bat", "count": 12, "interval": 0.7, "path": 0 }, { "type": "brute", "count": 10, "interval": 1.1, "path": 1, "delay": 1 }] },
+    { "spawns": [{ "type": "scout", "count": 12, "interval": 0.5, "path": 0 }, { "type": "scout", "count": 12, "interval": 0.5, "path": 1 }, { "type": "bat", "count": 10, "interval": 0.8, "path": 1, "delay": 5 }, { "type": "brute", "count": 8, "interval": 1.2, "path": 0, "delay": 8 }] },
+    { "spawns": [{ "type": "boss", "count": 1, "interval": 1.0, "path": 0 }, { "type": "boss", "count": 1, "interval": 1.0, "path": 1, "delay": 6 }, { "type": "scout", "count": 16, "interval": 0.5, "path": 1, "delay": 3 }, { "type": "bat", "count": 8, "interval": 0.8, "path": 0, "delay": 8 }] }
+  ]
+}
