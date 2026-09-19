@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-/** Orbit camera locked to the map centre: rotate 360°, zoom 10–45, tilt 25°–70° above the ground. */
+/** Orbit camera over the map: rotate 360°, zoom 10–45 towards the cursor, tilt 25°–70° above the ground. */
 export class CameraRig {
   constructor(camera, domElement, { centerX, centerZ, extent }) {
     this.controls = new OrbitControls(camera, domElement);
@@ -17,6 +17,12 @@ export class CameraRig {
     c.dampingFactor = 0.08;
     c.rotateSpeed = 0.6;
     c.zoomSpeed = 0.8;
+    // Zoom towards the point under the cursor; the orbit target slides along the ground plane
+    // and stays within the map so the camera cannot wander off into the void.
+    c.zoomToCursor = true;
+    c.screenSpacePanning = false;
+    c.cursor.set(centerX, 0, centerZ);
+    c.maxTargetRadius = extent;
     c.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
     c.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE };
     camera.position.set(centerX, extent * 1.3, centerZ + extent * 1.25);
