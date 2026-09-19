@@ -25,13 +25,13 @@
   "cannon": {
     "name": "Cannon Tower",
     "kind": "projectile",
-    "hitsFlying": true,
+    "hitsFlying": false,
     "hitsGround": true,
     "projectile": "shell",
     "levels": [
-      { "cost": 150, "fireRate": 0.5, "damage": 40, "range": 10, "splashRadius": 2.5, "splashFactor": 0.5 },
-      { "cost": 120, "fireRate": 0.6, "damage": 60, "range": 11, "splashRadius": 2.5, "splashFactor": 0.5 },
-      { "cost": 180, "fireRate": 0.7, "damage": 90, "range": 12, "splashRadius": 2.5, "splashFactor": 0.5 }
+      { "cost": 150, "fireRate": 0.5, "damage": 40, "range": 6, "splashRadius": 2.5, "splashFactor": 0.5 },
+      { "cost": 120, "fireRate": 0.6, "damage": 60, "range": 7, "splashRadius": 2.5, "splashFactor": 0.5 },
+      { "cost": 180, "fireRate": 0.7, "damage": 90, "range": 8, "splashRadius": 2.5, "splashFactor": 0.5 }
     ]
   },
   "frozen": {

@@ -68,7 +68,7 @@
   "tower.spike.name": "Spike Tower",
   "tower.spike.blurb": "Spikes pop up and hurt everything nearby on the ground.",
   "tower.cannon.name": "Cannon Tower",
-  "tower.cannon.blurb": "Slow but devastating. Splash damage.",
+  "tower.cannon.blurb": "Slow but devastating. Splash damage. Cannot hit flying trolls.",
   "tower.frozen.name": "Frozen Ice Block",
   "tower.frozen.blurb": "Leaks icy water onto nearby roads. Slows walking trolls.",
 

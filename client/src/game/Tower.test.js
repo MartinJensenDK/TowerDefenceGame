@@ -84,7 +84,7 @@ describe('Tower targeting', () => {
     const bat = enemyAt('bat', 5);
     expect(tower('spike').canTarget(bat)).toBe(false);
     expect(tower('crossbow').canTarget(bat)).toBe(true);
-    expect(tower('cannon').canTarget(bat)).toBe(true);
+    expect(tower('cannon').canTarget(bat)).toBe(false);
   });
 
   it('faces its target', () => {
