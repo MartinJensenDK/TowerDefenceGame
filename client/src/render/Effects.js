@@ -118,7 +118,10 @@ export class Effects {
   }
 
   dispose() {
-    for (const item of this.items) this.scene.remove(item.mesh ?? item.sprite);
+    for (const item of this.items) {
+      this.scene.remove(item.mesh ?? item.sprite);
+      if (item.sprite) item.sprite.material.dispose();
+    }
     this.items = [];
     for (const tex of this.textures.values()) tex.dispose();
     this.arrowGeo.dispose();
