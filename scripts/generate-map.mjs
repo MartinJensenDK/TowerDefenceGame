@@ -104,6 +104,56 @@ function walkPath(rng, edge, base) {
   return { points, tiles };
 }
 
+/**
+ * One very long road: it enters from the west edge, runs round the map just inside the border,
+ * spirals inward with random gaps between the rings and finally turns in to the castle.
+ * @returns {{points: number[][], tiles: Set<string>}}
+ */
+function spiralPath(rng, base) {
+  const [bx, by] = base;
+  const tiles = new Set();
+  const points = [];
+  let x = 0;
+  let y = randInt(rng, 4, 7);
+  points.push([x, y]);
+  const legTo = (nx, ny) => {
+    const dx = Math.sign(nx - x);
+    const dy = Math.sign(ny - y);
+    for (let cx = x, cy = y; ; cx += dx, cy += dy) {
+      tiles.add(`${cx},${cy}`);
+      if (cx === nx && cy === ny) break;
+    }
+    x = nx;
+    y = ny;
+    points.push([x, y]);
+  };
+  // the road runs on the boundary of this box; each leg shrinks the side it just left
+  let xlo = randInt(rng, 4, 7);
+  let xhi = SIZE - 1 - randInt(rng, 4, 7);
+  let ylo = y;
+  let yhi = SIZE - 1 - randInt(rng, 4, 7);
+  const fits = (a, b, c, d) => bx >= a + 3 && bx <= b - 3 && by >= c + 3 && by <= d - 3;
+  const HEADINGS = ['E', 'S', 'W', 'N'];
+  for (let leg = 0; leg < 60; leg++) {
+    const heading = HEADINGS[leg % 4];
+    const gap = randInt(rng, 12, 20);
+    // the box after this leg's shrink must still hold the castle with room to spare, else turn in
+    const next = heading === 'E' ? [xlo, xhi, ylo + gap, yhi] : heading === 'S' ? [xlo, xhi - gap, ylo, yhi]
+      : heading === 'W' ? [xlo, xhi, ylo, yhi - gap] : [xlo + gap, xhi, ylo, yhi];
+    if (!fits(...next)) break;
+    if (heading === 'E') { legTo(xhi, y); ylo += gap; }
+    else if (heading === 'S') { legTo(x, yhi); xhi -= gap; }
+    else if (heading === 'W') { legTo(xlo, y); yhi -= gap; }
+    else { legTo(x, ylo); xlo += gap; }
+  }
+  // final approach: keep going in the current heading until aligned with the castle, then turn in
+  const heading = HEADINGS[points.length % 4 === 0 ? 3 : (points.length - 1) % 4];
+  if (heading === 'E' || heading === 'W') legTo(bx, y);
+  else legTo(x, by);
+  legTo(bx, by);
+  return { points, tiles };
+}
+
 function pickEdges(rng) {
   const edges = [...EDGES];
   const out = [];
@@ -125,22 +175,29 @@ function waves(pathCount) {
 }
 
 /**
- * Builds a 100x100 map with three winding roads meeting at a castle near the middle.
- * @param {{seed: number, id: string, name: string, theme: string, description?: string}} opts
+ * Builds a 100x100 map: `trails` (default) has three winding roads meeting at a castle near the middle,
+ * `spiral` has one very long road that circles the map before turning in to the castle.
+ * @param {{seed: number, id: string, name: string, theme: string, description?: string, layout?: 'trails'|'spiral'}} opts
  * @returns {object} map definition, ready for validateMap
  */
-export function generateMap({ seed, id, name, theme, description = '' }) {
+export function generateMap({ seed, id, name, theme, description = '', layout = 'trails' }) {
   const rng = makeRng(seed);
   const base = [randInt(rng, 35, 64), randInt(rng, 35, 64)];
   const grid = Array.from({ length: SIZE }, () => Array(SIZE).fill('.'));
   const road = new Set();
   const paths = [];
-  for (const edge of pickEdges(rng)) {
-    let p = null;
-    for (let attempt = 0; attempt < 50 && !p; attempt++) p = walkPath(rng, edge, base);
-    if (!p) throw new Error(`seed ${seed}: could not route a path from edge ${edge}; try another seed`);
+  if (layout === 'spiral') {
+    const p = spiralPath(rng, base);
     paths.push(p.points);
     for (const k of p.tiles) road.add(k);
+  } else {
+    for (const edge of pickEdges(rng)) {
+      let p = null;
+      for (let attempt = 0; attempt < 50 && !p; attempt++) p = walkPath(rng, edge, base);
+      if (!p) throw new Error(`seed ${seed}: could not route a path from edge ${edge}; try another seed`);
+      paths.push(p.points);
+      for (const k of p.tiles) road.add(k);
+    }
   }
   for (const k of road) {
     const [x, y] = k.split(',').map(Number);

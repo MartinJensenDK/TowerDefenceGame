@@ -65,3 +65,23 @@ describe('spawn gate footprint', () => {
     }
   });
 });
+
+describe('spiral layout', () => {
+  it('makes one very long road that never reverses and reaches the castle', () => {
+    const map = generateMap({ ...opts, layout: 'spiral' });
+    expect(validateMap(map, enemies)).toBe(true);
+    expect(map.paths).toHaveLength(1);
+    const p = map.paths[0];
+    let length = 0;
+    for (let i = 1; i < p.length; i++) {
+      const dir = [Math.sign(p[i][0] - p[i - 1][0]), Math.sign(p[i][1] - p[i - 1][1])];
+      length += Math.abs(p[i][0] - p[i - 1][0]) + Math.abs(p[i][1] - p[i - 1][1]);
+      if (i > 1) {
+        const prev = [Math.sign(p[i - 1][0] - p[i - 2][0]), Math.sign(p[i - 1][1] - p[i - 2][1])];
+        expect(dir).not.toEqual([-prev[0], -prev[1]]);
+      }
+    }
+    expect(length).toBeGreaterThan(350);
+    expect(map.waves.every((w) => w.spawns.every((s) => s.path === 0))).toBe(true);
+  });
+});

@@ -18,13 +18,13 @@ describe('shipped maps', () => {
     });
   }
 
-  for (const [id, theme] of [['vast', 'green'], ['dunes', 'desert']]) {
-    it(`${id} is a generated 100x100 map with three paths`, () => {
+  for (const [id, theme, pathCount] of [['vast', 'green', 1], ['dunes', 'desert', 3]]) {
+    it(`${id} is a generated 100x100 map with ${pathCount} path(s)`, () => {
       const map = MAPS[id];
       expect(map.id).toBe(id);
       expect(map.theme).toBe(theme);
       expect([map.width, map.height]).toEqual([100, 100]);
-      expect(map.paths).toHaveLength(3);
+      expect(map.paths).toHaveLength(pathCount);
       expect(map.modifiers.waveInterval).toBe(45);
       expect(validateMap(map, ENEMY_DEFS)).toBe(true);
     });
