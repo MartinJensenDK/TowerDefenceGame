@@ -6,6 +6,8 @@ const SPEED = 1.8; // world units per second the arrows travel
 const PULSE_LENGTH = 6; // world units between brightness peaks running along the route
 const PULSE_SPEED = 5; // world units per second the brightness peaks travel
 const ARROW_Y = 0.035; // just above the road top (0)
+const BASE_COLOR = new THREE.Color(0x2f9cf0);
+const PEAK_COLOR = new THREE.Color(0xdff6ff);
 
 /** Slim chevron stroke pointing along +Z: two thin arms meeting at the tip. */
 function chevronGeometry() {
@@ -29,7 +31,7 @@ function chevronGeometry() {
 
 /**
  * Light blue chevrons that flow along every enemy path so the player sees the route before the first wave.
- * A soft additive glow sits under each chevron and a brightness pulse runs along the route.
+ * A brightness pulse runs along the route, making each chevron flare up and grow as it passes.
  */
 export class PathPreview {
   constructor({ scene, paths }) {
@@ -45,23 +47,11 @@ export class PathPreview {
       const count = Math.max(1, Math.floor(length / SPACING));
       for (let i = 0; i < count; i++) {
         const core = new THREE.MeshBasicMaterial({ color: 0x3fb2ff, transparent: true, opacity: 0.95, depthWrite: false });
-        const glow = new THREE.MeshBasicMaterial({
-          color: 0x1a5fe0,
-          transparent: true,
-          opacity: 0.35,
-          depthWrite: false,
-          blending: THREE.AdditiveBlending,
-        });
-        this.materials.push(core, glow);
+        this.materials.push(core);
         const mesh = new THREE.Mesh(this.geometry, core);
         mesh.renderOrder = 6;
-        const halo = new THREE.Mesh(this.geometry, glow);
-        halo.scale.set(1.9, 1, 1.7);
-        halo.position.y = -0.008;
-        halo.renderOrder = 5;
-        mesh.add(halo);
         this.group.add(mesh);
-        this.arrows.push({ mesh, core, glow, points, offset: i * SPACING });
+        this.arrows.push({ mesh, core, points, offset: i * SPACING });
       }
     }
     this.#place();
@@ -71,7 +61,7 @@ export class PathPreview {
   #place() {
     const travel = this.time * SPEED;
     const pulse = this.time * PULSE_SPEED;
-    for (const { mesh, core, glow, points, offset } of this.arrows) {
+    for (const { mesh, core, points, offset } of this.arrows) {
       const d = offset + travel;
       const p = pointAlongPolyline(points, d);
       mesh.position.set(p.x, ARROW_Y, p.z);
@@ -79,9 +69,9 @@ export class PathPreview {
       // 0..1 brightness peak travelling along the route ahead of the arrows themselves.
       const k = 0.5 + 0.5 * Math.cos(((d - pulse) / PULSE_LENGTH) * Math.PI * 2);
       const s = k * k;
-      core.opacity = 0.65 + 0.3 * s;
-      glow.opacity = 0.12 + 0.4 * s;
-      const scale = 0.92 + 0.14 * s;
+      core.opacity = 0.6 + 0.4 * s;
+      core.color.copy(BASE_COLOR).lerp(PEAK_COLOR, s);
+      const scale = 0.9 + 0.35 * s;
       mesh.scale.set(scale, 1, scale);
     }
   }
