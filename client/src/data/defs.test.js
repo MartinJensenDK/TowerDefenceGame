@@ -20,6 +20,13 @@ describe('tower definitions', () => {
     towers.cannon.levels.forEach((lvl, i) => expect(lvl.range).toBeLessThan(towers.crossbow.levels[i].range));
   });
 
+  it('never lets the frozen tower reach further than it does at level 2', () => {
+    const cap = towers.frozen.levels[1].freezeRadius;
+    for (const lvl of towers.frozen.levels.slice(1)) expect(lvl.freezeRadius).toBe(cap);
+    // upgrades past level 2 still buy something: the slow keeps getting stronger
+    expect(towers.frozen.levels.at(-1).slow).toBeLessThan(towers.frozen.levels[1].slow);
+  });
+
   it('gives projectile towers fireRate/damage/range and freeze towers freezeRadius/slow', () => {
     for (const lvl of towers.crossbow.levels) {
       expect(lvl.fireRate).toBeGreaterThan(0);
@@ -28,8 +35,8 @@ describe('tower definitions', () => {
     }
     expect(towers.cannon.levels[0].splashRadius).toBe(2.5);
     expect(towers.spike.levels[0].tickInterval).toBe(0.5);
-    expect(towers.frozen.levels.slice(0, 3).map((l) => l.freezeRadius)).toEqual([1, 2, 3]);
-    expect(towers.frozen.levels.at(-1).freezeRadius).toBe(6);
+    expect(towers.frozen.levels.slice(0, 3).map((l) => l.freezeRadius)).toEqual([1, 2, 2]);
+    expect(towers.frozen.levels.at(-1).freezeRadius).toBe(2);
     expect(towers.spike.hitsFlying).toBe(false);
     expect(towers.crossbow.hitsFlying).toBe(true);
   });

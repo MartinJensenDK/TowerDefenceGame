@@ -63,14 +63,14 @@
     "levels": [
       { "cost": 100, "freezeRadius": 1, "slow": 0.5 },
       { "cost": 80, "freezeRadius": 2, "slow": 0.5 },
-      { "cost": 120, "freezeRadius": 3, "slow": 0.5 },
-      { "cost": 160, "freezeRadius": 3, "slow": 0.45 },
-      { "cost": 210, "freezeRadius": 4, "slow": 0.45 },
-      { "cost": 270, "freezeRadius": 4, "slow": 0.4 },
-      { "cost": 340, "freezeRadius": 5, "slow": 0.4 },
-      { "cost": 420, "freezeRadius": 5, "slow": 0.35 },
-      { "cost": 510, "freezeRadius": 6, "slow": 0.35 },
-      { "cost": 620, "freezeRadius": 6, "slow": 0.3 }
+      { "cost": 120, "freezeRadius": 2, "slow": 0.5 },
+      { "cost": 160, "freezeRadius": 2, "slow": 0.45 },
+      { "cost": 210, "freezeRadius": 2, "slow": 0.45 },
+      { "cost": 270, "freezeRadius": 2, "slow": 0.4 },
+      { "cost": 340, "freezeRadius": 2, "slow": 0.4 },
+      { "cost": 420, "freezeRadius": 2, "slow": 0.35 },
+      { "cost": 510, "freezeRadius": 2, "slow": 0.35 },
+      { "cost": 620, "freezeRadius": 2, "slow": 0.3 }
     ]
   }
 }

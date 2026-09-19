@@ -316,7 +316,17 @@ const BUILDERS = {
       g.add(mesh(new THREE.ConeGeometry(0.8, 0.7, 4), toon(C.woodDark), { x: sx * 1.9, y: 3.35 }));
     }
     g.add(mesh(new THREE.BoxGeometry(2.8, 0.7, 0.8), toon(C.stone), { y: 2.1 }));
-    g.add(mesh(new THREE.BoxGeometry(1.7, 1.7, 0.1), toon(0x111014), { y: 0.85, z: 0.42 }));
+    // magic portal in the archway: a spinning swirl (PortalSwirl) on a glowing disc
+    g.add(mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.08, 24), toon(0x2a0d3a, { emissive: 0x7a2bd6, emissiveIntensity: 0.8, name: 'PortalGlow' }), { y: 0.85, z: 0.4, rx: Math.PI / 2 }));
+    const swirl = new THREE.Group();
+    swirl.name = 'PortalSwirl';
+    swirl.position.set(0, 0.85, 0.46);
+    for (let i = 0; i < 3; i++) {
+      const arm = mesh(new THREE.BoxGeometry(1.2, 0.12, 0.04), toon(0xf0d8ff, { emissive: 0xc79bff, emissiveIntensity: 1, name: 'PortalGlowBright' }), {});
+      arm.rotation.z = (i * Math.PI) / 3;
+      swirl.add(arm);
+    }
+    g.add(swirl);
     for (let i = -2; i <= 2; i++) g.add(mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.2, 6), toon(C.metal), { x: i * 0.3, y: 1.55, z: 0.5 }));
     g.add(mesh(new THREE.SphereGeometry(0.32, 12, 10), toon(0xdddddd), { y: 2.85 }));
     return g;

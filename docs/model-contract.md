@@ -18,7 +18,7 @@ All 21 models exist in `blender/troll-towers.blend` (one collection per model) a
 | `tower_frozen.glb` | Frozen ice block | ~1.4 m cube |
 | `troll_scout.glb` | Scout troll | ~1 m tall |
 | `troll_brute.glb` | Brute troll | ~1.8 m tall |
-| `troll_bat.glb` | Bat troll (flying) | ~0.8 m, hovering ~1.2 m above ground |
+| `troll_bat.glb` | Bat troll (flying) with a small troll dangling from its feet (`Hang_*` parts, its legs on a second `LegL`/`LegR` pair) | ~1.2 m from the dangling feet to the ears, hovering ~0.8 m above ground |
 | `troll_boss.glb` | Boss troll | ~3 m tall |
 | `troll_archer.glb` | Archer troll (hood, longbow, quiver; never shoots) | ~1.1 m tall |
 | `troll_knight.glb` | Armoured troll (plate, sword, kite shield) | ~1.5 m tall |
@@ -26,11 +26,11 @@ All 21 models exist in `blender/troll-towers.blend` (one collection per model) a
 | `troll_eaglerider.glb` | Small troll on an eagle (flying) | ~2.6 m to the top, hovering ~1.1 m above ground, ~2.8 m wingspan |
 | `troll_rhino.glb` | Boss: big troll in full iron on an armoured rhino, flaming sword | ~3.6 m tall, ~3.2 m long |
 | `troll_wolfpack.glb` | Boss: big troll dragging a huge club, three leashed wolves in front | ~2.8 m tall, ~3.5 m wide |
-| `troll_giant.glb` | Final boss: the Troll King in royal plate with a tower shield and a glowing sword | ~5.5 m tall |
+| `troll_giant.glb` | Final boss: the Troll King in royal plate with a glowing sword and a tower shield strapped to the left forearm (face outward, back against him) | ~7.3 m tall |
 | `decor_tree.glb`, `decor_rock.glb`, `decor_cactus.glb`, `decor_reed.glb` | Decoration | fits inside 2×2 m |
 | `decor_mountain.glb` | Mountain ridge on the north edge of Vast Meadows; listed in the map's `props` with its tile footprint and stretched to it | 60 × 12 m (30 × 6 tiles), ~17 m high, origin bottom centre |
 | `base_castle.glb` | The castle the trolls attack; fills 3×3 tiles | ≤ 6 m (3×3 tiles); shipped model ~5.6 m wide, ~6 m tall, gate on +Z |
-| `spawn_gate.glb` | Where trolls come out; spans 3 tiles across the road | ≤ 6 m wide (shipped ~5.9 m), ~4 m tall, 1 tile deep, opening faces +Z |
+| `spawn_gate.glb` | Where trolls come out; spans 3 tiles across the road. A magic portal fills the archway: the `PortalSwirl` empty (wisps + core) is spun by the game around its own axis and the `PortalGlow*` materials pulse | ≤ 6 m wide (shipped ~5.9 m), ~4 m tall, 1 tile deep, opening faces +Z |
 
 ## Scale and origin
 - 1 Blender unit = 1 metre. One grid tile is **2 × 2 m**.

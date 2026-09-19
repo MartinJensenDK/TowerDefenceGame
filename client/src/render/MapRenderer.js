@@ -228,6 +228,10 @@ export class MapRenderer {
     for (const a of this.archers) a.visible = false;
     this.archerTurn = 0;
 
+    // Each road starts at a gate with a magic portal in the archway: `PortalSwirl` spins around its
+    // own axis and the *Glow* materials pulse (see docs/model-contract.md).
+    this.portalSwirls = [];
+    const portalMaterials = new Set();
     for (const path of this.map.paths) {
       const [sx, sy] = path[0];
       const [nx, ny] = path[1];
@@ -236,7 +240,14 @@ export class MapRenderer {
       gate.position.set(gw.x, 0, gw.z);
       gate.rotation.y = Math.atan2(nx - sx, ny - sy);
       this.group.add(gate);
+      gate.traverse((o) => {
+        if (/^PortalSwirl/.test(o.name)) this.portalSwirls.push(o);
+        const mats = Array.isArray(o.material) ? o.material : o.material ? [o.material] : [];
+        for (const m of mats) if (/glow/i.test(m.name) && m.emissive) portalMaterials.add(m);
+      });
     }
+    // Blender emission strengths of 2-3 would wash the toon shading out to white, same cap as EnemyView
+    this.portalMaterials = [...portalMaterials].map((m) => ({ material: m, base: Math.min(1.2, m.emissiveIntensity ?? 1) }));
   }
 
   /** Replaces the frozen overlays with one plane per frozen road tile. */
@@ -255,6 +266,8 @@ export class MapRenderer {
   update(dt) {
     this.time += dt;
     this.frozenMaterial.opacity = 0.45 + 0.15 * Math.sin(this.time * 2.5);
+    for (const swirl of this.portalSwirls) swirl.rotation.z -= dt * 1.6;
+    for (const { material, base } of this.portalMaterials) material.emissiveIntensity = base * (0.8 + 0.2 * Math.sin(this.time * 4.5));
     for (const [i, plane] of this.frozenGroup.children.entries()) {
       plane.position.y = 0.02 + 0.015 * Math.sin(this.time * 3 + i);
     }
