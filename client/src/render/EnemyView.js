@@ -1,6 +1,29 @@
 import * as THREE from 'three';
 
 const DEATH_DURATION = 0.45;
+const HP_STEPS = 32;
+const hpTextures = new Map();
+
+/** Shared hp-bar textures: one per (fill level, colour), drawn once and reused by every troll. */
+function hpTexture(level) {
+  if (hpTextures.has(level)) return hpTextures.get(level);
+  const w = 66;
+  const h = 10;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#1d1a16';
+  ctx.fillRect(0, 0, w, h);
+  const ratio = level / HP_STEPS;
+  ctx.fillStyle = ratio > 0.5 ? '#44dd44' : ratio > 0.25 ? '#ffb347' : '#ff5544';
+  ctx.fillRect(2, 2, Math.round((w - 4) * ratio), h - 4);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.minFilter = THREE.LinearFilter;
+  hpTextures.set(level, tex);
+  return tex;
+}
 
 /** Visual for one enemy: model instance, walk bobbing, hp bar, hit flash and death squash. */
 export class EnemyView {
@@ -31,16 +54,13 @@ export class EnemyView {
       this.actions.walk?.play();
     }
 
-    this.hpBg = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0x222222, depthTest: false }));
-    this.hpBg.scale.set(1.1, 0.16, 1);
-    this.hpBg.position.y = this.height + 0.35;
-    this.hpBg.renderOrder = 10;
-    this.hpFg = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0x44dd44, depthTest: false }));
-    this.hpFg.center.set(0, 0.5);
-    this.hpFg.scale.set(1.0, 0.1, 1);
-    this.hpFg.position.set(-0.5, this.height + 0.35, 0);
-    this.hpFg.renderOrder = 11;
-    this.root.add(this.hpBg, this.hpFg);
+    // One billboard sprite for the whole hp bar, so it stays a single bar whichever way the troll faces.
+    this.hpLevel = HP_STEPS;
+    this.hpBar = new THREE.Sprite(new THREE.SpriteMaterial({ map: hpTexture(HP_STEPS), transparent: true, depthTest: false }));
+    this.hpBar.scale.set(1.1, 0.17, 1);
+    this.hpBar.position.y = this.height + 0.35;
+    this.hpBar.renderOrder = 10;
+    this.root.add(this.hpBar);
 
     this.walkT = Math.random() * 10;
     this.flashT = 0;
@@ -65,8 +85,7 @@ export class EnemyView {
 
   startDeath() {
     this.dying = true;
-    this.hpBg.visible = false;
-    this.hpFg.visible = false;
+    this.hpBar.visible = false;
     if (this.actions.die) {
       this.actions.walk?.stop();
       const die = this.actions.die;
@@ -108,8 +127,12 @@ export class EnemyView {
     this.wings.forEach((w, i) => {
       w.rotation.z = (i === 0 ? 1 : -1) * Math.sin(this.walkT * 2) * 0.6;
     });
-    this.hpFg.scale.x = Math.max(0, this.enemy.hp / this.enemy.maxHp);
-    this.hpFg.material.color.setHex(this.hpFg.scale.x > 0.5 ? 0x44dd44 : this.hpFg.scale.x > 0.25 ? 0xffb347 : 0xff5544);
+    const level = Math.max(0, Math.min(HP_STEPS, Math.ceil((this.enemy.hp / this.enemy.maxHp) * HP_STEPS)));
+    if (level !== this.hpLevel) {
+      this.hpLevel = level;
+      this.hpBar.material.map = hpTexture(level);
+      this.hpBar.material.needsUpdate = true;
+    }
 
     this.flashT = Math.max(0, this.flashT - dt);
     const slowed = this.enemy.speedMultiplier < 1;
@@ -121,7 +144,6 @@ export class EnemyView {
   dispose() {
     this.scene.remove(this.root);
     for (const m of this.materials) m.dispose();
-    this.hpBg.material.dispose();
-    this.hpFg.material.dispose();
+    this.hpBar.material.dispose(); // textures are shared and kept
   }
 }
