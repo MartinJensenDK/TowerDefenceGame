@@ -10,6 +10,7 @@
  */
 import { writeFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { generateWaveTable } from '../client/src/game/waveTable.js';
 import path from 'node:path';
 
 const SIZE = 100;
@@ -161,17 +162,9 @@ function pickEdges(rng) {
   return out;
 }
 
-const here = () => path.dirname(fileURLToPath(import.meta.url));
-let greenWaves = null;
-
-/** The 20-wave table from green.json, scaled up 1.5x and spread across the paths. */
+/** The shared 50-wave table with 1.5x as many walkers, riders and flyers, dealt across the paths. */
 function waves(pathCount) {
-  if (!greenWaves) {
-    greenWaves = JSON.parse(readFileSync(path.join(here(), '../client/src/data/maps/green.json'), 'utf8')).waves;
-  }
-  return greenWaves.map((w, wi) => ({
-    spawns: w.spawns.map((s, gi) => ({ ...s, count: Math.ceil(s.count * 1.5), path: (wi + gi) % pathCount })),
-  }));
+  return generateWaveTable({ pathCount, scale: 1.5 });
 }
 
 /**

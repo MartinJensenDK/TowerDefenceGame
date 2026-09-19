@@ -44,12 +44,19 @@ export class WaveRun {
 }
 
 export const ENDLESS_MIX = [
-  { type: 'scout', weight: 0.5, cost: 1, interval: 0.5 },
-  { type: 'bat', weight: 0.25, cost: 2, interval: 0.8 },
-  { type: 'brute', weight: 0.25, cost: 3, interval: 1.2 },
+  { type: 'scout', weight: 0.32, cost: 1, interval: 0.4 },
+  { type: 'bat', weight: 0.13, cost: 2, interval: 0.7 },
+  { type: 'archer', weight: 0.13, cost: 2, interval: 0.6 },
+  { type: 'brute', weight: 0.12, cost: 3, interval: 1.0 },
+  { type: 'knight', weight: 0.1, cost: 4, interval: 1.0 },
+  { type: 'wolfrider', weight: 0.1, cost: 4, interval: 0.8 },
+  { type: 'eaglerider', weight: 0.1, cost: 4, interval: 0.9 },
 ];
 
-/** Generates wave n (> 20) from a budget of 40 + 8n, boss every 10th wave. */
+/** Endless bosses take turns: wave 60 gets a Boss Troll, 70 a Rhino Knight, 80 a Wolf Master, 90 a Boss Troll, … */
+export const ENDLESS_BOSSES = ['boss', 'rhino', 'wolfpack'];
+
+/** Generates wave n (> WAVE_COUNT) from a budget of 40 + 8n; a boss every 10th wave, the Troll King every 50th. */
 export function generateEndlessWave(n, pathCount = 1, rng = Math.random) {
   let budget = 40 + 8 * n;
   const counts = Object.fromEntries(ENDLESS_MIX.map((m) => [m.type, 0]));
@@ -77,7 +84,9 @@ export function generateEndlessWave(n, pathCount = 1, rng = Math.random) {
     delay += 2;
   }
   if (n % 10 === 0) {
-    spawns.push({ type: 'boss', count: Math.max(1, Math.floor(n / 10) - 1), interval: 5, delay: 1, path: 0 });
+    const type = ENDLESS_BOSSES[(n / 10) % ENDLESS_BOSSES.length];
+    spawns.push({ type, count: Math.max(1, Math.floor(n / 25) - 1), interval: 8, delay: 1, path: 0 });
   }
+  if (n % 50 === 0) spawns.push({ type: 'giant', count: n / 50 - 1 || 1, interval: 20, delay: 3, path: 0 });
   return { spawns };
 }

@@ -104,6 +104,31 @@ function troll({ height, color, bulk = 1, wings = false, crown = false, hover = 
   return g;
 }
 
+/** A four-legged mount (box body, four LegL/LegR pivots) with an optional small troll on its back. */
+function mounted({ mountColor, mountLength, mountHeight, riderHeight, riderColor = C.troll, hover = 0 }) {
+  const g = new THREE.Group();
+  const body = toon(mountColor);
+  const legLen = hover ? 0.2 : mountHeight * 0.8;
+  const bodyY = hover + legLen + mountHeight * 0.35;
+  g.add(mesh(new THREE.BoxGeometry(mountHeight * 0.9, mountHeight * 0.7, mountLength), body, { y: bodyY, name: 'MountBody' }));
+  g.add(mesh(new THREE.BoxGeometry(mountHeight * 0.5, mountHeight * 0.45, mountHeight * 0.6), body, { y: bodyY + mountHeight * 0.2, z: mountLength * 0.55, name: 'MountHead' }));
+  const legGeo = new THREE.BoxGeometry(mountHeight * 0.22, legLen, mountHeight * 0.22);
+  [[-1, 1, 'LegL'], [1, 1, 'LegR'], [-1, -1, 'LegL001'], [1, -1, 'LegR001']].forEach(([sx, sz, name]) => {
+    const hip = new THREE.Group();
+    hip.name = name;
+    hip.position.set(sx * mountHeight * 0.3, hover + legLen, sz * mountLength * 0.35);
+    hip.add(mesh(legGeo, toon(0x333333), { y: -legLen / 2 }));
+    g.add(hip);
+  });
+  if (riderHeight > 0) {
+    const rider = troll({ height: riderHeight, color: riderColor });
+    rider.position.y = bodyY + mountHeight * 0.3;
+    rider.name = 'Rider';
+    g.add(rider);
+  }
+  return g;
+}
+
 const BUILDERS = {
   tower_crossbow() {
     const g = new THREE.Group();
@@ -172,6 +197,45 @@ const BUILDERS = {
   troll_brute: () => troll({ height: 1.8, color: C.brute, bulk: 1.35 }),
   troll_bat: () => troll({ height: 0.8, color: C.bat, wings: true, hover: 1.2 }),
   troll_boss: () => troll({ height: 3.0, color: C.boss, bulk: 1.25, crown: true }),
+  troll_archer() {
+    const g = troll({ height: 1.0, color: C.troll });
+    g.add(mesh(new THREE.TorusGeometry(0.32, 0.03, 6, 12, Math.PI), toon(C.wood), { x: -0.4, y: 0.6, rz: -Math.PI / 2, name: 'Bow' }));
+    return g;
+  },
+  troll_knight() {
+    const g = troll({ height: 1.3, color: C.metal, bulk: 1.15 });
+    g.add(mesh(new THREE.BoxGeometry(0.08, 0.9, 0.16), toon(0xd0d0d8), { x: 0.5, y: 0.9, name: 'Sword' }));
+    return g;
+  },
+  troll_wolfrider: () => mounted({ mountColor: 0x7a7a80, mountLength: 1.3, mountHeight: 0.55, riderHeight: 0.8 }),
+  troll_eaglerider() {
+    const g = mounted({ mountColor: 0x8a5a2b, mountLength: 1.1, mountHeight: 0.35, riderHeight: 0.7, hover: 1.2 });
+    const wingGeo = new THREE.BoxGeometry(1.2, 0.05, 0.5);
+    for (const side of [-1, 1]) g.add(mesh(wingGeo, toon(0x6e4520), { x: side * 0.9, y: 1.55, name: side < 0 ? 'WingL' : 'WingR' }));
+    return g;
+  },
+  troll_rhino() {
+    const g = mounted({ mountColor: 0x8c8c86, mountLength: 2.6, mountHeight: 1.4, riderHeight: 1.8, riderColor: C.metal });
+    g.add(mesh(new THREE.ConeGeometry(0.16, 0.7, 8), toon(0xe8e4d0), { y: 1.4, z: 1.5, rx: Math.PI / 2.4, name: 'Horn' }));
+    g.add(mesh(new THREE.BoxGeometry(0.12, 1.6, 0.25), toon(0xff7a2a, { emissive: 0xff4400 }), { x: 0.9, y: 2.8, name: 'FireSword' }));
+    return g;
+  },
+  troll_wolfpack() {
+    const g = troll({ height: 2.2, color: C.brute, bulk: 1.3 });
+    g.add(mesh(new THREE.CylinderGeometry(0.25, 0.12, 1.6, 8), toon(C.woodDark), { x: 0.6, y: 0.4, z: -1.2, rx: Math.PI / 2.6, name: 'Club' }));
+    for (const [x, z] of [[-1.1, 0.9], [1.2, 1.0], [0.1, 1.6]]) {
+      const w = mounted({ mountColor: 0x6a6a70, mountLength: 1.1, mountHeight: 0.5, riderHeight: 0 });
+      w.position.set(x, 0, z);
+      g.add(w);
+    }
+    return g;
+  },
+  troll_giant() {
+    const g = troll({ height: 5.0, color: 0x4f7f3a, bulk: 1.3, crown: true });
+    g.add(mesh(new THREE.BoxGeometry(1.4, 2.2, 0.15), toon(C.metal), { x: -1.4, y: 2.2, name: 'Shield' }));
+    g.add(mesh(new THREE.BoxGeometry(0.25, 3.6, 0.5), toon(0x9fd8ff, { emissive: 0x2a7fff }), { x: 1.4, y: 3.2, name: 'GlowSword' }));
+    return g;
+  },
 
   decor_tree() {
     const g = new THREE.Group();

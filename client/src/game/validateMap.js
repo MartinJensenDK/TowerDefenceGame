@@ -1,3 +1,5 @@
+import { WAVE_COUNT } from './waveTable.js';
+
 const TILE_CHARS = '.RWDCG';
 const REQUIRED = ['id', 'name', 'theme', 'width', 'height', 'tiles', 'paths', 'base', 'waves', 'startGold'];
 
@@ -60,7 +62,7 @@ export function validateMap(map, enemyDefs) {
     }
   });
 
-  if (!Array.isArray(map.waves) || map.waves.length !== 20) fail('exactly 20 waves required');
+  if (!Array.isArray(map.waves) || map.waves.length !== WAVE_COUNT) fail(`exactly ${WAVE_COUNT} waves required`);
   map.waves.forEach((wave, i) => {
     if (!Array.isArray(wave.spawns) || wave.spawns.length === 0) fail(`wave ${i + 1} has no spawns`);
     for (const s of wave.spawns) {

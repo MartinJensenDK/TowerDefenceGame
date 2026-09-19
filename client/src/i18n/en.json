@@ -91,6 +91,13 @@
   "enemy.brute.name": "Brute Troll",
   "enemy.bat.name": "Bat Troll",
   "enemy.boss.name": "Boss Troll",
+  "enemy.archer.name": "Archer Troll",
+  "enemy.knight.name": "Armoured Troll",
+  "enemy.wolfrider.name": "Wolf Rider",
+  "enemy.eaglerider.name": "Eagle Rider",
+  "enemy.rhino.name": "Rhino Knight",
+  "enemy.wolfpack.name": "Wolf Master",
+  "enemy.giant.name": "Troll King",
 
   "end.wonTitle": "Map cleared!",
   "end.lostTitle": "The trolls got through…",

@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { validateMap } from '../game/validateMap.js';
+import { BOSS_TYPES } from '../game/waveTable.js';
 import { MAPS, MAP_ORDER, ENEMY_DEFS, TOWER_DEFS } from './index.js';
 
 describe('shipped maps', () => {
   it('lists six maps in order', () => {
     expect(MAP_ORDER).toEqual(['green', 'snow', 'desert', 'water', 'vast', 'dunes']);
     expect(Object.keys(TOWER_DEFS)).toHaveLength(4);
-    expect(Object.keys(ENEMY_DEFS)).toHaveLength(4);
+    expect(Object.keys(ENEMY_DEFS)).toHaveLength(11);
   });
 
   for (const id of ['green', 'snow', 'desert', 'water']) {
@@ -30,11 +31,22 @@ describe('shipped maps', () => {
     });
   }
 
-  it('has bosses on waves 10 and 20 of every map', () => {
+  it('has 50 waves on every map with a boss every 10th and the Troll King last', () => {
     for (const map of Object.values(MAPS)) {
-      for (const w of [9, 19]) {
-        expect(map.waves[w].spawns.some((s) => s.type === 'boss')).toBe(true);
+      expect(map.waves).toHaveLength(50);
+      for (const w of [9, 19, 29, 39]) {
+        expect(map.waves[w].spawns.some((s) => BOSS_TYPES.includes(s.type))).toBe(true);
       }
+      expect(map.waves[49].spawns[0].type).toBe('giant');
+      expect(map.waves.filter((w) => w.spawns.some((s) => s.type === 'giant'))).toHaveLength(1);
+    }
+  });
+
+  it('spreads every big map\'s waves over all of its roads', () => {
+    for (const id of ['water', 'dunes']) {
+      const map = MAPS[id];
+      const used = new Set(map.waves.flatMap((w) => w.spawns.map((s) => s.path ?? 0)));
+      expect(used.size).toBe(map.paths.length);
     }
   });
 

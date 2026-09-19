@@ -15,7 +15,7 @@ describe('generateMap', () => {
     const edge = ([x, y]) => (y === 0 ? 'N' : y === 99 ? 'S' : x === 0 ? 'W' : 'E');
     expect(new Set(map.paths.map((p) => edge(p[0]))).size).toBe(3);
     expect(map.modifiers.waveInterval).toBe(45);
-    expect(map.waves).toHaveLength(20);
+    expect(map.waves).toHaveLength(50);
     expect(map.waves[0].spawns[0].count).toBe(9);
   });
 
@@ -82,6 +82,6 @@ describe('spiral layout', () => {
       }
     }
     expect(length).toBeGreaterThan(350);
-    expect(map.waves.every((w) => w.spawns.every((s) => s.path === 0))).toBe(true);
+    expect(map.waves.every((w) => w.spawns.every((s) => (s.path ?? 0) === 0))).toBe(true);
   });
 });

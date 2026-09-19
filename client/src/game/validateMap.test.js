@@ -44,9 +44,9 @@ describe('validateMap', () => {
     expect(() => validateMap(map, enemies)).toThrow(/base must be on a road tile/);
   });
 
-  it('requires exactly 20 waves', () => {
-    const map = makeTestMap({ waves: makeTestMap().waves.slice(0, 19) });
-    expect(() => validateMap(map, enemies)).toThrow(/exactly 20 waves/);
+  it('requires exactly 50 waves', () => {
+    const map = makeTestMap({ waves: makeTestMap().waves.slice(0, 49) });
+    expect(() => validateMap(map, enemies)).toThrow(/exactly 50 waves/);
   });
 
   it('rejects unknown enemy types and bad counts', () => {

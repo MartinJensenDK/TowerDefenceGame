@@ -36,10 +36,15 @@ describe('tower definitions', () => {
 });
 
 describe('enemy definitions', () => {
-  it('has the four trolls', () => {
-    expect(Object.keys(enemies).sort()).toEqual(['bat', 'boss', 'brute', 'scout']);
+  it('has eleven trolls: seven regulars, three bosses and the Troll King', () => {
+    expect(Object.keys(enemies).sort()).toEqual(['archer', 'bat', 'boss', 'brute', 'eaglerider', 'giant', 'knight', 'rhino', 'scout', 'wolfpack', 'wolfrider']);
     expect(enemies.bat.flying).toBe(true);
+    expect(enemies.eaglerider.flying).toBe(true);
     expect(enemies.boss.livesCost).toBe(5);
+    expect(enemies.giant.livesCost).toBe(20); // the last boss ends the game if it gets in
+    expect(enemies.giant.speed).toBeLessThan(0.5);
+    expect(enemies.giant.hp).toBeGreaterThan(enemies.rhino.hp * 5);
+    for (const type of ['archer', 'knight', 'wolfrider', 'eaglerider']) expect(enemies[type].hp).toBeLessThan(enemies.boss.hp);
     for (const def of Object.values(enemies)) {
       expect(def.hp).toBeGreaterThan(0);
       expect(def.speed).toBeGreaterThan(0);

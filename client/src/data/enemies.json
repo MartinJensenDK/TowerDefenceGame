@@ -1,6 +1,13 @@
 {
-  "scout": { "name": "Scout Troll", "hp": 30, "speed": 3.0, "gold": 5, "score": 10, "flying": false, "livesCost": 1, "attack": 6 },
-  "brute": { "name": "Brute Troll", "hp": 160, "speed": 1.4, "gold": 15, "score": 30, "flying": false, "livesCost": 2, "attack": 20 },
-  "bat":   { "name": "Bat Troll", "hp": 60, "speed": 2.2, "gold": 10, "score": 20, "flying": true, "livesCost": 1, "attack": 0 },
-  "boss":  { "name": "Boss Troll", "hp": 1200, "speed": 1.0, "gold": 100, "score": 300, "flying": false, "livesCost": 5, "attack": 80 }
+  "scout":      { "name": "Scout Troll",    "hp": 30,    "speed": 3.0,  "gold": 5,    "score": 10,   "flying": false, "livesCost": 1,  "attack": 6 },
+  "brute":      { "name": "Brute Troll",    "hp": 160,   "speed": 1.4,  "gold": 15,   "score": 30,   "flying": false, "livesCost": 2,  "attack": 20 },
+  "bat":        { "name": "Bat Troll",      "hp": 60,    "speed": 2.2,  "gold": 10,   "score": 20,   "flying": true,  "livesCost": 1,  "attack": 0 },
+  "boss":       { "name": "Boss Troll",     "hp": 1200,  "speed": 1.0,  "gold": 100,  "score": 300,  "flying": false, "livesCost": 5,  "attack": 80, "cadence": 6 },
+  "archer":     { "name": "Archer Troll",   "hp": 90,    "speed": 2.4,  "gold": 12,   "score": 25,   "flying": false, "livesCost": 1,  "attack": 8 },
+  "knight":     { "name": "Armoured Troll", "hp": 320,   "speed": 1.2,  "gold": 20,   "score": 40,   "flying": false, "livesCost": 2,  "attack": 25, "cadence": 7 },
+  "wolfrider":  { "name": "Wolf Rider",     "hp": 260,   "speed": 3.6,  "gold": 25,   "score": 50,   "flying": false, "livesCost": 2,  "attack": 15, "cadence": 12 },
+  "eaglerider": { "name": "Eagle Rider",    "hp": 220,   "speed": 2.8,  "gold": 25,   "score": 50,   "flying": true,  "livesCost": 2,  "attack": 0 },
+  "rhino":      { "name": "Rhino Knight",   "hp": 4000,  "speed": 1.1,  "gold": 250,  "score": 600,  "flying": false, "livesCost": 8,  "attack": 150, "cadence": 5 },
+  "wolfpack":   { "name": "Wolf Master",    "hp": 3200,  "speed": 1.6,  "gold": 250,  "score": 600,  "flying": false, "livesCost": 8,  "attack": 120, "cadence": 6 },
+  "giant":      { "name": "Troll King",     "hp": 25000, "speed": 0.45, "gold": 1000, "score": 3000, "flying": false, "livesCost": 20, "attack": 400, "cadence": 2.2 }
 }

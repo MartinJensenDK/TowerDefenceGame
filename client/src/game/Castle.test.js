@@ -101,7 +101,7 @@ describe('castle upgrades in a game', () => {
   });
 
   it('flying trolls ignore the barricade', () => {
-    const g = makeGame({ startGold: 10000, waves: Array.from({ length: 20 }, () => ({ spawns: [{ type: 'bat', count: 1, interval: 1 }] })) });
+    const g = makeGame({ startGold: 10000, waves: makeTestMap().waves.map(() => ({ spawns: [{ type: 'bat', count: 1, interval: 1 }] })) });
     g.upgradeCastle('barricade');
     g.startNextWave();
     run(g, 8);

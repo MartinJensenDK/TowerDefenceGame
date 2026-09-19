@@ -380,15 +380,15 @@
    "spawns": [
     {
      "type": "boss",
-     "count": 2,
-     "interval": 1,
+     "count": 1,
+     "interval": 5,
      "path": 0
     },
     {
      "type": "scout",
      "count": 12,
-     "interval": 0.8,
-     "delay": 2,
+     "interval": 0.6,
+     "delay": 3,
      "path": 1
     }
    ]
@@ -396,17 +396,10 @@
   {
    "spawns": [
     {
-     "type": "bat",
-     "count": 15,
+     "type": "archer",
+     "count": 12,
      "interval": 0.8,
      "path": 1
-    },
-    {
-     "type": "brute",
-     "count": 9,
-     "interval": 1.4,
-     "delay": 3,
-     "path": 2
     }
    ]
   },
@@ -414,35 +407,32 @@
    "spawns": [
     {
      "type": "scout",
-     "count": 30,
+     "count": 18,
      "interval": 0.5,
      "path": 2
     },
     {
-     "type": "bat",
+     "type": "knight",
+     "count": 3,
+     "interval": 2.5,
+     "delay": 4,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "knight",
+     "count": 6,
+     "interval": 2,
+     "path": 0
+    },
+    {
+     "type": "archer",
      "count": 9,
-     "interval": 0.9,
-     "delay": 5,
-     "path": 0
-    }
-   ]
-  },
-  {
-   "spawns": [
-    {
-     "type": "brute",
-     "count": 15,
-     "interval": 1.2,
-     "path": 0
-    }
-   ]
-  },
-  {
-   "spawns": [
-    {
-     "type": "bat",
-     "count": 21,
-     "interval": 0.7,
+     "interval": 0.8,
+     "delay": 3,
      "path": 1
     }
    ]
@@ -450,16 +440,33 @@
   {
    "spawns": [
     {
-     "type": "scout",
-     "count": 38,
-     "interval": 0.4,
+     "type": "bat",
+     "count": 15,
+     "interval": 0.7,
+     "path": 1
+    },
+    {
+     "type": "archer",
+     "count": 12,
+     "interval": 0.7,
+     "delay": 2,
+     "path": 2
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "brute",
+     "count": 9,
+     "interval": 1.3,
      "path": 2
     },
     {
-     "type": "brute",
-     "count": 8,
-     "interval": 1.5,
-     "delay": 6,
+     "type": "knight",
+     "count": 6,
+     "interval": 2,
+     "delay": 3,
      "path": 0
     }
    ]
@@ -467,27 +474,27 @@
   {
    "spawns": [
     {
-     "type": "brute",
-     "count": 12,
-     "interval": 1.2,
+     "type": "archer",
+     "count": 21,
+     "interval": 0.6,
      "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "knight",
+     "count": 9,
+     "interval": 1.6,
+     "path": 1
     },
     {
-     "type": "bat",
-     "count": 12,
-     "interval": 0.8,
-     "delay": 2,
-     "path": 1
-    }
-   ]
-  },
-  {
-   "spawns": [
-    {
      "type": "scout",
-     "count": 45,
-     "interval": 0.4,
-     "path": 1
+     "count": 24,
+     "interval": 0.45,
+     "delay": 2,
+     "path": 2
     }
    ]
   },
@@ -496,14 +503,14 @@
     {
      "type": "bat",
      "count": 18,
-     "interval": 0.7,
+     "interval": 0.6,
      "path": 2
     },
     {
      "type": "brute",
-     "count": 15,
-     "interval": 1.1,
-     "delay": 1,
+     "count": 9,
+     "interval": 1.2,
+     "delay": 4,
      "path": 0
     }
    ]
@@ -511,23 +518,295 @@
   {
    "spawns": [
     {
+     "type": "knight",
+     "count": 12,
+     "interval": 1.4,
+     "path": 0
+    },
+    {
+     "type": "archer",
+     "count": 15,
+     "interval": 0.6,
+     "delay": 3,
+     "path": 1
+    },
+    {
+     "type": "bat",
+     "count": 9,
+     "interval": 0.8,
+     "delay": 8,
+     "path": 2
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "rhino",
+     "count": 1,
+     "interval": 5,
+     "path": 1
+    },
+    {
+     "type": "knight",
+     "count": 9,
+     "interval": 1.5,
+     "delay": 4,
+     "path": 2
+    },
+    {
+     "type": "scout",
+     "count": 18,
+     "interval": 0.5,
+     "delay": 8,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "wolfrider",
+     "count": 6,
+     "interval": 1.5,
+     "path": 2
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "archer",
+     "count": 18,
+     "interval": 0.6,
+     "path": 0
+    },
+    {
+     "type": "wolfrider",
+     "count": 6,
+     "interval": 1.2,
+     "delay": 5,
+     "path": 1
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "knight",
+     "count": 12,
+     "interval": 1.4,
+     "path": 1
+    },
+    {
+     "type": "wolfrider",
+     "count": 9,
+     "interval": 1.2,
+     "delay": 4,
+     "path": 2
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "bat",
+     "count": 21,
+     "interval": 0.6,
+     "path": 2
+    },
+    {
+     "type": "brute",
+     "count": 12,
+     "interval": 1.1,
+     "delay": 2,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "wolfrider",
+     "count": 15,
+     "interval": 1,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "boss",
+     "count": 2,
+     "interval": 6,
+     "path": 1
+    },
+    {
      "type": "scout",
      "count": 30,
-     "interval": 0.5,
+     "interval": 0.4,
+     "delay": 3,
+     "path": 2
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "knight",
+     "count": 15,
+     "interval": 1.2,
+     "path": 2
+    },
+    {
+     "type": "archer",
+     "count": 18,
+     "interval": 0.6,
+     "delay": 4,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "wolfrider",
+     "count": 12,
+     "interval": 1,
      "path": 0
     },
     {
      "type": "bat",
      "count": 15,
-     "interval": 0.8,
-     "delay": 4,
+     "interval": 0.7,
+     "delay": 3,
+     "path": 1
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "brute",
+     "count": 15,
+     "interval": 1,
      "path": 1
     },
     {
-     "type": "brute",
+     "type": "knight",
      "count": 12,
      "interval": 1.2,
-     "delay": 8,
+     "delay": 3,
+     "path": 2
+    },
+    {
+     "type": "wolfrider",
+     "count": 9,
+     "interval": 1,
+     "delay": 10,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "wolfpack",
+     "count": 1,
+     "interval": 5,
+     "path": 2
+    },
+    {
+     "type": "rhino",
+     "count": 1,
+     "interval": 5,
+     "delay": 12,
+     "path": 0
+    },
+    {
+     "type": "wolfrider",
+     "count": 12,
+     "interval": 1,
+     "delay": 4,
+     "path": 1
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "eaglerider",
+     "count": 8,
+     "interval": 1.4,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "bat",
+     "count": 18,
+     "interval": 0.6,
+     "path": 1
+    },
+    {
+     "type": "eaglerider",
+     "count": 9,
+     "interval": 1.2,
+     "delay": 4,
+     "path": 2
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "knight",
+     "count": 18,
+     "interval": 1.1,
+     "path": 2
+    },
+    {
+     "type": "eaglerider",
+     "count": 9,
+     "interval": 1.2,
+     "delay": 3,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "wolfrider",
+     "count": 18,
+     "interval": 0.9,
+     "path": 0
+    },
+    {
+     "type": "archer",
+     "count": 21,
+     "interval": 0.5,
+     "delay": 3,
+     "path": 1
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "eaglerider",
+     "count": 15,
+     "interval": 1,
+     "path": 1
+    },
+    {
+     "type": "scout",
+     "count": 38,
+     "interval": 0.35,
+     "delay": 2,
      "path": 2
     }
    ]
@@ -536,23 +815,317 @@
    "spawns": [
     {
      "type": "boss",
-     "count": 3,
+     "count": 2,
      "interval": 6,
+     "path": 2
+    },
+    {
+     "type": "knight",
+     "count": 15,
+     "interval": 1.2,
+     "delay": 3,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "brute",
+     "count": 18,
+     "interval": 0.9,
+     "path": 0
+    },
+    {
+     "type": "eaglerider",
+     "count": 12,
+     "interval": 1.1,
+     "delay": 4,
+     "path": 1
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "archer",
+     "count": 30,
+     "interval": 0.5,
      "path": 1
     },
     {
+     "type": "wolfrider",
+     "count": 15,
+     "interval": 0.9,
+     "delay": 6,
+     "path": 2
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "knight",
+     "count": 21,
+     "interval": 1,
+     "path": 2
+    },
+    {
+     "type": "eaglerider",
+     "count": 15,
+     "interval": 1,
+     "delay": 5,
+     "path": 0
+    },
+    {
+     "type": "bat",
+     "count": 18,
+     "interval": 0.6,
+     "delay": 10,
+     "path": 1
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "rhino",
+     "count": 2,
+     "interval": 20,
+     "path": 0
+    },
+    {
+     "type": "wolfpack",
+     "count": 1,
+     "interval": 5,
+     "delay": 10,
+     "path": 1
+    },
+    {
+     "type": "eaglerider",
+     "count": 12,
+     "interval": 1.1,
+     "delay": 4,
+     "path": 2
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "wolfrider",
+     "count": 21,
+     "interval": 0.8,
+     "path": 1
+    },
+    {
+     "type": "eaglerider",
+     "count": 12,
+     "interval": 1,
+     "delay": 4,
+     "path": 2
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "knight",
+     "count": 24,
+     "interval": 0.9,
+     "path": 2
+    },
+    {
+     "type": "archer",
+     "count": 24,
+     "interval": 0.5,
+     "delay": 3,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "boss",
+     "count": 3,
+     "interval": 5,
+     "path": 0
+    },
+    {
+     "type": "brute",
+     "count": 18,
+     "interval": 0.9,
+     "delay": 3,
+     "path": 1
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "eaglerider",
+     "count": 21,
+     "interval": 0.9,
+     "path": 1
+    },
+    {
+     "type": "bat",
+     "count": 24,
+     "interval": 0.5,
+     "delay": 3,
+     "path": 2
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "wolfpack",
+     "count": 2,
+     "interval": 14,
+     "path": 2
+    },
+    {
+     "type": "wolfrider",
+     "count": 18,
+     "interval": 0.8,
+     "delay": 4,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
      "type": "scout",
-     "count": 23,
+     "count": 60,
+     "interval": 0.3,
+     "path": 0
+    },
+    {
+     "type": "knight",
+     "count": 18,
+     "interval": 1,
+     "delay": 5,
+     "path": 1
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "rhino",
+     "count": 2,
+     "interval": 14,
+     "path": 1
+    },
+    {
+     "type": "archer",
+     "count": 30,
      "interval": 0.5,
      "delay": 3,
      "path": 2
     },
     {
-     "type": "bat",
-     "count": 12,
-     "interval": 0.8,
+     "type": "eaglerider",
+     "count": 15,
+     "interval": 1,
      "delay": 8,
      "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "knight",
+     "count": 30,
+     "interval": 0.8,
+     "path": 2
+    },
+    {
+     "type": "wolfrider",
+     "count": 21,
+     "interval": 0.8,
+     "delay": 6,
+     "path": 0
+    },
+    {
+     "type": "bat",
+     "count": 21,
+     "interval": 0.6,
+     "delay": 12,
+     "path": 1
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "rhino",
+     "count": 2,
+     "interval": 12,
+     "path": 0
+    },
+    {
+     "type": "wolfpack",
+     "count": 2,
+     "interval": 12,
+     "delay": 6,
+     "path": 1
+    },
+    {
+     "type": "eaglerider",
+     "count": 18,
+     "interval": 0.9,
+     "delay": 4,
+     "path": 2
+    },
+    {
+     "type": "brute",
+     "count": 18,
+     "interval": 0.9,
+     "delay": 10,
+     "path": 0
+    }
+   ]
+  },
+  {
+   "spawns": [
+    {
+     "type": "giant",
+     "count": 1,
+     "interval": 5,
+     "path": 1
+    },
+    {
+     "type": "knight",
+     "count": 24,
+     "interval": 1,
+     "delay": 6,
+     "path": 2
+    },
+    {
+     "type": "wolfrider",
+     "count": 18,
+     "interval": 0.8,
+     "delay": 14,
+     "path": 0
+    },
+    {
+     "type": "eaglerider",
+     "count": 18,
+     "interval": 0.9,
+     "delay": 22,
+     "path": 1
+    },
+    {
+     "type": "archer",
+     "count": 30,
+     "interval": 0.5,
+     "delay": 30,
+     "path": 2
     }
    ]
   }

@@ -6,6 +6,8 @@ import { buildPlaceholder } from './placeholders.js';
 export const MODEL_NAMES = [
   'tower_crossbow', 'tower_spike', 'tower_cannon', 'tower_frozen',
   'troll_scout', 'troll_brute', 'troll_bat', 'troll_boss',
+  'troll_archer', 'troll_knight', 'troll_wolfrider', 'troll_eaglerider',
+  'troll_rhino', 'troll_wolfpack', 'troll_giant',
   'decor_tree', 'decor_rock', 'decor_cactus', 'decor_reed',
   'base_castle', 'spawn_gate',
 ];
@@ -20,7 +22,11 @@ function prepareGltfScene(scene) {
       vertexColors: !!old?.vertexColors,
       transparent: !!old?.transparent,
       opacity: old?.opacity ?? 1,
+      // glowing parts (flaming swords, magic blades) keep their emission from Blender
+      emissive: old?.emissive ? old.emissive.clone() : new THREE.Color(0x000000),
+      emissiveIntensity: old?.emissiveIntensity ?? 1,
     });
+    o.material.name = old?.name ?? '';
     o.castShadow = true;
     o.receiveShadow = true;
   });

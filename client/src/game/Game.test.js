@@ -172,33 +172,33 @@ describe('Game waves', () => {
     expect(g.wave).toBe(2); // wave 2 auto-started (and the cannon may already have finished it)
   });
 
-  it('wins after wave 20 and can continue into endless', () => {
+  it('wins after wave 50 and can continue into endless', () => {
     const g = makeGame();
     const won = vi.fn();
     g.on('game:won', won);
     g.buildTower('cannon', 2, 0);
     g.buildTower('cannon', 3, 2);
-    for (let w = 1; w <= 20; w++) {
+    for (let w = 1; w <= 50; w++) {
       expect(g.startNextWave()).toBe(true);
       run(g, 6);
     }
     expect(g.state).toBe('won');
     expect(won).toHaveBeenCalledTimes(1);
-    expect(won.mock.calls[0][0].wave).toBe(20);
+    expect(won.mock.calls[0][0].wave).toBe(50);
     expect(g.startNextWave()).toBe(false);
     expect(g.startEndless()).toBe(true);
     expect(g.state).toBe('idle');
     const started = vi.fn();
     g.on('wave:started', started);
     expect(g.startNextWave()).toBe(true);
-    expect(started).toHaveBeenCalledWith({ wave: 21, early: false, endless: true });
+    expect(started).toHaveBeenCalledWith({ wave: 51, early: false, endless: true });
     const spawned = vi.fn();
     g.on('enemy:spawned', spawned);
     g.update(0.05);
     expect(spawned).toHaveBeenCalled();
     const first = spawned.mock.calls[0][0].enemy;
-    expect(first.type).toBe('scout'); // rng 0.3 always picks the scout entry
-    expect(first.maxHp).toBe(Math.round(enemies.scout.hp * (1 + 0.06 * 20)));
+    expect(first.type).toBe('scout'); // every endless mix entry starts with its scouts
+    expect(first.maxHp).toBe(Math.round(enemies.scout.hp * (1 + 0.06 * 50)));
   });
 
   it('cannon splash damages nearby enemies and spike towers tick', () => {
@@ -273,10 +273,14 @@ describe('interval waves', () => {
   });
 
   it('stops the timer once every wave has been started', () => {
-    const g = makeGame({ modifiers: { frostBonus: 1, waveInterval: 0.5 } });
+    // one slow giant per wave: the first one needs ~22 s to reach the castle, so no lives are lost meanwhile
+    const g = makeGame({
+      modifiers: { frostBonus: 1, waveInterval: 0.2 },
+      waves: makeTestMap().waves.map(() => ({ spawns: [{ type: 'giant', count: 1, interval: 1 }] })),
+    });
     g.startNextWave();
-    run(g, 12);
-    expect(g.wave).toBe(20);
+    run(g, 15);
+    expect(g.wave).toBe(50);
     expect(g.waveTimer).toBeNull();
   });
 });

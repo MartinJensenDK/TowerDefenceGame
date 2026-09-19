@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { hpMultiplier, waveBonus, buildSchedule, WaveRun, generateEndlessWave, ENDLESS_MIX } from './Wave.js';
+import { hpMultiplier, waveBonus, buildSchedule, WaveRun, generateEndlessWave, ENDLESS_MIX, ENDLESS_BOSSES } from './Wave.js';
+import enemies from '../data/enemies.json';
 
 describe('formulas', () => {
   it('scales hp by 6% per wave after the first', () => {
@@ -9,7 +10,7 @@ describe('formulas', () => {
 
   it('gives 20 gold and 50 x wave score', () => {
     expect(waveBonus(1)).toEqual({ gold: 20, score: 50 });
-    expect(waveBonus(20)).toEqual({ gold: 20, score: 1000 });
+    expect(waveBonus(50)).toEqual({ gold: 20, score: 2500 });
   });
 });
 
@@ -49,33 +50,39 @@ describe('generateEndlessWave', () => {
   const cost = Object.fromEntries(ENDLESS_MIX.map((m) => [m.type, m.cost]));
 
   it('spends exactly the budget 40 + 8n on non-boss enemies', () => {
-    for (const n of [21, 25, 33]) {
+    for (const n of [51, 55, 63]) {
       const wave = generateEndlessWave(n, 1, () => 0.3);
       const spent = wave.spawns.filter((s) => s.type !== 'boss').reduce((sum, s) => sum + cost[s.type] * s.count, 0);
       expect(spent).toBe(40 + 8 * n);
     }
   });
 
-  it('adds bosses only every 10th wave', () => {
-    expect(generateEndlessWave(21, 1, () => 0.1).spawns.some((s) => s.type === 'boss')).toBe(false);
-    const w30 = generateEndlessWave(30, 1, () => 0.1);
-    expect(w30.spawns.find((s) => s.type === 'boss').count).toBe(2);
+  it('adds a boss only every 10th wave, taking turns between the three, and the giant every 50th', () => {
+    const bossOf = (w) => w.spawns.filter((s) => ['boss', 'rhino', 'wolfpack', 'giant'].includes(s.type));
+    expect(bossOf(generateEndlessWave(51, 1, () => 0.1))).toEqual([]);
+    expect(bossOf(generateEndlessWave(60, 1, () => 0.1))).toEqual([{ type: ENDLESS_BOSSES[0], count: 1, interval: 8, delay: 1, path: 0 }]);
+    expect(bossOf(generateEndlessWave(70, 1, () => 0.1))[0]).toMatchObject({ type: ENDLESS_BOSSES[1], count: 1 });
+    expect(bossOf(generateEndlessWave(80, 1, () => 0.1))[0]).toMatchObject({ type: ENDLESS_BOSSES[2], count: 2 });
+    const w100 = bossOf(generateEndlessWave(100, 1, () => 0.1));
+    expect(w100.map((s) => s.type)).toEqual(['rhino', 'giant']);
+    expect(w100[1].count).toBe(1);
+    expect(bossOf(generateEndlessWave(150, 1, () => 0.1)).at(-1)).toMatchObject({ type: 'giant', count: 2 });
   });
 
   it('is deterministic for a given rng and spreads spawns across paths', () => {
-    const rng = () => 0.9; // always picks the last (brute) entry
-    const a = generateEndlessWave(22, 2, rng);
-    const b = generateEndlessWave(22, 2, rng);
+    const rng = () => 0.95; // always picks the last (eaglerider) entry
+    const a = generateEndlessWave(52, 2, rng);
+    const b = generateEndlessWave(52, 2, rng);
     expect(a).toEqual(b);
     expect(a.spawns.every((s) => s.path < 2)).toBe(true);
   });
 
   it('produces valid spawn entries', () => {
-    const wave = generateEndlessWave(41, 2);
+    const wave = generateEndlessWave(91, 2);
     for (const s of wave.spawns) {
       expect(s.count).toBeGreaterThan(0);
       expect(s.interval).toBeGreaterThan(0);
-      expect(['scout', 'bat', 'brute', 'boss']).toContain(s.type);
+      expect(Object.keys(enemies)).toContain(s.type);
     }
   });
 });

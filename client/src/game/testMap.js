@@ -1,3 +1,5 @@
+import { WAVE_COUNT } from './waveTable.js';
+
 /** A tiny valid map for unit tests: straight road along row 1 from x=0 to x=5. */
 export function makeTestMap(overrides = {}) {
   return {
@@ -9,7 +11,7 @@ export function makeTestMap(overrides = {}) {
     tiles: ['....CCC', 'RRRRRRC', '....CCC'],
     paths: [[[0, 1], [5, 1]]],
     base: [5, 1],
-    waves: Array.from({ length: 20 }, () => ({
+    waves: Array.from({ length: WAVE_COUNT }, () => ({
       spawns: [{ type: 'scout', count: 1, interval: 1 }],
     })),
     startGold: 500,
