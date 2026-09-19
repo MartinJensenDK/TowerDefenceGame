@@ -114,3 +114,17 @@ describe('static hosting', () => {
     expect(api.status).toBe(404);
   });
 });
+
+describe('body parsing', () => {
+  it('returns JSON error for invalid JSON', async () => {
+    const res = await request(app).post('/api/highscores').set('content-type', 'application/json').send('{not json');
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeTruthy();
+  });
+
+  it('returns JSON error for body too large', async () => {
+    const res = await request(app).post('/api/highscores').send({ name: 'x'.repeat(5000), map: 'green', score: 1, wave: 1 });
+    expect(res.status).toBe(413);
+    expect(res.body.error).toBe('body too large');
+  });
+});
