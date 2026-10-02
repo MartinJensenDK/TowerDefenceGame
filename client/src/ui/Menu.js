@@ -43,7 +43,10 @@ export class Menu {
           </div>
         </div>`;
     }).join('');
+    // behind the GameHub (built for a sub-path like /troll-towers/) the site's front page lists every game
+    const allGames = import.meta.env.BASE_URL !== '/' ? `<a class="btn small all-games" href="/">${t('menu.allGames')}</a>` : '';
     this.root.innerHTML = `<div class="card">
+        ${allGames}
         <h1>${t('app.title')}</h1>
         <p class="subtitle">${t('app.subtitle')}</p>
         <h2>${t('menu.chooseMap')}</h2>

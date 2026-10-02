@@ -131,3 +131,4 @@ table.scores td.num, table.scores th.num { text-align: right; }
 
 table.scores .guest { opacity: 0.6; font-size: 0.85em; }
 .dialog-card .muted { opacity: 0.75; font-size: 0.9em; margin: 0.3rem 0; }
+.all-games { display: inline-block; text-decoration: none; margin-bottom: 0.4rem; }
