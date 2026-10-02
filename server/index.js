@@ -12,8 +12,10 @@ const STATIC_DIR = path.join(here, '..', 'client', 'dist');
 const db = openDb(DB_PATH);
 const app = createApp({ db, staticDir: STATIC_DIR });
 
-const server = app.listen(PORT, () => {
-  console.log(`Troll Towers server listening on http://localhost:${PORT} (db: ${DB_PATH})`);
+// loopback only: behind the GameHub portal this server trusts its X-User-* headers, so nothing else may reach it
+const HOST = process.env.HOST ?? '127.0.0.1';
+const server = app.listen(PORT, HOST, () => {
+  console.log(`Troll Towers server listening on http://${HOST}:${PORT} (db: ${DB_PATH})`);
 });
 
 for (const signal of ['SIGINT', 'SIGTERM']) {

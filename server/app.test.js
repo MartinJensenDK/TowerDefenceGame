@@ -128,3 +128,44 @@ describe('body parsing', () => {
     expect(res.body.error).toBe('body too large');
   });
 });
+
+describe('shared login (GameHub headers)', () => {
+  const hub = (id, name) => ({ 'x-user-id': String(id), ...(name ? { 'x-user-name': encodeURIComponent(name) } : {}) });
+
+  it('a logged-in player scores under their display name, whatever name the body says', async () => {
+    const res = await request(app).post('/api/highscores').set(hub(7, 'Søren Ø')).send({ name: 'Someone', map: 'green', score: 300, wave: 5 });
+    expect(res.status).toBe(201);
+    const top = await request(app).get('/api/highscores?map=green');
+    expect(top.body[0]).toMatchObject({ name: 'Søren Ø', score: 300, guest: false });
+  });
+
+  it('a guest scores with a typed name and is marked as guest', async () => {
+    await request(app).post('/api/highscores').send({ name: 'Anna', map: 'green', score: 100, wave: 2 });
+    const top = await request(app).get('/api/highscores?map=green');
+    expect(top.body[0]).toMatchObject({ name: 'Anna', guest: true });
+  });
+
+  it('a logged-in player without a display name must choose one first', async () => {
+    const res = await request(app).post('/api/highscores').set(hub(8)).send({ name: 'Anna', map: 'green', score: 100, wave: 2 });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('no display name');
+  });
+
+  it('keeps scores from before the shared login as guest scores', async () => {
+    const dir2 = fs.mkdtempSync(path.join(os.tmpdir(), 'troll-towers-old-'));
+    const file = path.join(dir2, 'old.db');
+    const Database = (await import('better-sqlite3')).default;
+    const old = new Database(file);
+    old.exec(`CREATE TABLE highscores (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, map TEXT NOT NULL,
+      score INTEGER NOT NULL, wave INTEGER NOT NULL, created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')));
+      INSERT INTO highscores (name, map, score, wave) VALUES ('Martin', 'green', 900, 30);`);
+    old.close();
+    const migrated = openDb(file);
+    expect(migrated.top('green', 10)).toEqual([expect.objectContaining({ name: 'Martin', score: 900, guest: true })]);
+    migrated.close();
+    const again = openDb(file); // re-opening doesn't add the column twice
+    expect(again.top('green', 10)).toHaveLength(1);
+    again.close();
+    fs.rmSync(dir2, { recursive: true, force: true });
+  });
+});

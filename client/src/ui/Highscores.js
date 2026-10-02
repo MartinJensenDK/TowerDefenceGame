@@ -5,6 +5,25 @@ const PENDING_KEY = 'tt.pendingScores';
 const BEST_PREFIX = 'tt.best.';
 const NAME_KEY = 'tt.name';
 const API = `${import.meta.env.BASE_URL}api/highscores`; // BASE_URL is '/' locally and the sub-path in a BASE_PATH build
+// the shared account of the GameHub portal lives at the site root; without the hub (local dev) there is none
+const ACCOUNT_API = '/api/auth/me';
+
+/** the GameHub login page, coming back to this game afterwards */
+export function loginUrl() {
+  return `/login?next=${encodeURIComponent(import.meta.env.BASE_URL)}`;
+}
+
+/** the logged-in hub account ({ displayName } may be null), or null for a guest */
+export async function fetchAccount() {
+  try {
+    const res = await fetch(ACCOUNT_API, { credentials: 'same-origin' });
+    if (!res.ok) return null;
+    const me = await res.json();
+    return me && typeof me.email === 'string' ? { displayName: me.displayName ?? null } : null;
+  } catch {
+    return null;
+  }
+}
 
 function readJson(key, fallback) {
   try {
@@ -106,7 +125,7 @@ export function renderScoresTable(rows) {
   if (!rows.length) return `<p>${t('scores.empty')}</p>`;
   const body = rows
     .map(
-      (r, i) => `<tr><td class="num">${i + 1}</td><td>${escapeHtml(r.name)}</td><td class="num">${escapeHtml(r.score)}</td><td class="num">${escapeHtml(r.wave)}</td></tr>`,
+      (r, i) => `<tr><td class="num">${i + 1}</td><td>${escapeHtml(r.name)}${r.guest ? ` <span class="guest">(${t('scores.guest')})</span>` : ''}</td><td class="num">${escapeHtml(r.score)}</td><td class="num">${escapeHtml(r.wave)}</td></tr>`,
     )
     .join('');
   return `<table class="scores"><thead><tr><th class="num">#</th><th>${t('scores.name')}</th><th class="num">${t('scores.score')}</th><th class="num">${t('scores.wave')}</th></tr></thead><tbody>${body}</tbody></table>`;

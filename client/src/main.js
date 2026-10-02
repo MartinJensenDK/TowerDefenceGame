@@ -4,7 +4,7 @@ import { ModelLibrary, MODEL_NAMES } from './render/ModelLibrary.js';
 import { GameScreen } from './ui/GameScreen.js';
 import { Menu } from './ui/Menu.js';
 import { showEndDialog, showPauseDialog, hideDialog } from './ui/Dialogs.js';
-import { submitScore, flushPending, recordBest } from './ui/Highscores.js';
+import { submitScore, flushPending, recordBest, fetchAccount } from './ui/Highscores.js';
 import { MAPS } from './data/index.js';
 
 function showFatal(message) {
@@ -59,12 +59,14 @@ async function boot() {
         mapId,
         sceneManager,
         models,
-        onEnd: ({ won, score, wave }) => {
+        onEnd: async ({ won, score, wave }) => {
           recordBest(mapId, score);
+          const account = await fetchAccount();
           showEndDialog(dialogEl, {
             won,
             score,
             wave,
+            account,
             onSubmit: (name) => submitScore({ name, map: mapId, score, wave }),
             onEndless: () => {
               hideDialog(dialogEl);

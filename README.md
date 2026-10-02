@@ -30,7 +30,13 @@ BASE_PATH=/troll-towers/ npm run build              # client/dist with /troll-to
 pm2 restart troll-towers                            # first time: pm2 start server/index.js --name troll-towers --node-args="--env-file=/home/ssh-game/troll-towers.env" && pm2 save
 ```
 
-`/home/ssh-game/troll-towers.env` holds `PORT=3002` and `DB_PATH=/home/ssh-game/data/troll-towers.sqlite`. The game is
+`/home/ssh-game/troll-towers.env` holds `PORT=3002` and `DB_PATH=/home/ssh-game/data/troll-towers.sqlite`.
+
+**Shared login:** players log in on the hub (one account for every game). The hub adds `X-User-Id` and `X-User-Name`
+(the account's display name, percent-encoded) to requests it proxies here and drops client copies; a score posted by a
+logged-in player is stored under that name with `user_id`, a guest's score keeps the typed name with `user_id` NULL
+and is listed as "(Guest)" (so are all scores from before the shared login). The client asks the hub's `/api/auth/me`
+who is playing. Because it trusts those headers the server listens on 127.0.0.1 only (`HOST`). The game is
 registered in the hub's `games.json` (`id: troll-towers`, `port: 3002`); after editing that file run `pm2 restart hub`.
 
 ## Deploy on a CloudPanel Node.js site of its own

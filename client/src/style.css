@@ -128,3 +128,6 @@ table.scores td.num, table.scores th.num { text-align: right; }
   .stat .value { font-size: 1rem; }
   #build-panel { right: 0.4rem; left: 0.4rem; bottom: 0.4rem; width: auto; }
 }
+
+table.scores .guest { opacity: 0.6; font-size: 0.85em; }
+.dialog-card .muted { opacity: 0.75; font-size: 0.9em; margin: 0.3rem 0; }
