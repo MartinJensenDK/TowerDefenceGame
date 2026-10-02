@@ -3,6 +3,9 @@ import { MAPS, MAP_ORDER, ENEMY_DEFS } from '../data/index.js';
 import { validateMap } from '../game/validateMap.js';
 import { personalBest, fetchTop, localScores, renderScoresTable } from './Highscores.js';
 
+// the GameHub's "All games" icon (the hub's public/all-games.svg): every link back to the portal uses it
+const ALL_GAMES_ICON = '<svg class="all-games-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2" fill="#e8942a" stroke="#9a5a14" stroke-width="1.2"/><rect x="13" y="2.5" width="8.5" height="8.5" rx="2" fill="#6aa84f" stroke="#3d6e2a" stroke-width="1.2"/><rect x="2.5" y="13" width="8.5" height="8.5" rx="2" fill="#5b8fc9" stroke="#2f5a8a" stroke-width="1.2"/><rect x="13" y="13" width="8.5" height="8.5" rx="2" fill="#c74b3c" stroke="#8a2a1e" stroke-width="1.2"/></svg>';
+
 /** Main menu: map cards with personal bests, and a per-map highscore view. */
 export class Menu {
   constructor(root, { onPlay }) {
@@ -44,7 +47,7 @@ export class Menu {
         </div>`;
     }).join('');
     // behind the GameHub (built for a sub-path like /troll-towers/) the site's front page lists every game
-    const allGames = import.meta.env.BASE_URL !== '/' ? `<a class="btn small all-games" href="/">${t('menu.allGames')}</a>` : '';
+    const allGames = import.meta.env.BASE_URL !== '/' ? `<a class="btn small all-games" href="/">${ALL_GAMES_ICON}<span>${t('menu.allGames')}</span></a>` : '';
     this.root.innerHTML = `<div class="card">
         ${allGames}
         <h1>${t('app.title')}</h1>
